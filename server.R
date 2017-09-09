@@ -83,7 +83,7 @@ function(input, output) {
 
     plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
     gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
-    text(x = 3, y=signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
+    text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
     text(x = 0, y=10,  labels = 1,pos = 4)
     text(x = 0, y=-10, labels = -1,pos = 4)
 
