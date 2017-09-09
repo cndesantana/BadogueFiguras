@@ -21,7 +21,8 @@ source("./auxFunctions.R")
 fluidPage(
    titlePanel("Badogue's Figure download"),
    fileInput('file', 'Escolha o Arquivo EXCEL', accept=c('.xlsx')),
-   downloadButton('indicesentimentos',"Download Indice de Sentimento"),
+   downloadButton('indicesentimentos',"Download Indice de Sentimento (IS)"),
+   downloadButton('variabilidade',"Download da variabilidade do IS"),
    tags$hr(),
    mainPanel(
       tabsetPanel(type = "tabs",

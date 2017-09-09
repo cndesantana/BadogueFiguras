@@ -72,20 +72,33 @@ getDFMatrix <- function(text){
 }
 
 function(input, output) {
-   plotPalavras = function() {
+   plotVariabilidade = function() {
       filepath <- input$file$datapath
-      file <- read_xlsx(filepath)
-      text <- toupper(file$Conteúdo)
-      mydfm <- getDFMatrix(text);
-      words_td <- topfeatures(mydfm, 20)
-      ggplot() + 
-         geom_bar(stat = "identity", 
-                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = "magenta") + 
-         ylab("Numero de ocorrencias") +
-         xlab("") +
-         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
-         coord_flip()
+      dat <- read_xlsx(filepath)
+      datasPosts <- as.Date(dat$Data,format="%d/%m/%Y")
+      uniqueDataPosts <- unique(sort(datasPosts))
+      mymatrix <- list();
+      for(idata in 1:length(uniqueDataPosts)){
+         data <- uniqueDataPosts[idata];
+         posData <- which(datasPosts == data)
+         idPostsData <- dat$`ID do Post`[posData]
+         uniqueIdsPostsData <- unique(sort(idPostsData))
+         for(iposts in 1:length(uniqueIdsPostsData)){
+            idPost <- uniqueIdsPostsData[iposts]
+            polaridadePostData <- dat$Polaridade[which(dat$`ID do Post`[posData] == idPost)]
+            if(length(polaridadePostData) >= 5){
+               sentimento <- getIndiceDeSentimento(polaridadePostData);
+               cat(paste(datasPosts[idata],length(polaridadePostData), idPost,sentimento,sep=" "),sep="\n");
+               mymatrix <- rbind(mymatrix,cbind(as.character(data),idPost,sentimento))          
+            }
+         }
+      }
+      colnames(mymatrix) <- c("Data","id","sentimento")
+      mymatrix <- as.data.frame(mymatrix)
+      ggplot(mymatrix, aes(x=ymd(Data),y=as.numeric(sentimento))) + geom_point(stat="identity") + 
+         stat_smooth(method="loess", span=0.1, se=TRUE, aes(Sombra="Desvio"), alpha=0.3) +
+         theme_bw() +
+         xlab("Data") + ylab("Sentimento dos Posts")
    }
    
    plotIndiceSentimentos = function() {
@@ -101,6 +114,22 @@ function(input, output) {
       text(x = 0, y=-10, labels = -1,pos = 4)
       
       #    qplot(speed, dist, data = cars)
+   }
+   
+   plotPalavras = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo)
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 20)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = "magenta") + 
+         ylab("Numero de ocorrencias") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
    }
    
    plotPalavrasNegativas = function() {
@@ -220,9 +249,23 @@ function(input, output) {
       ggsave(file, plot = plotIndiceSentimentos(), device = device)
     })
 
+  output$variabilidade = downloadHandler(
+     filename = function() {
+        paste("variabilidade.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotVariabilidade(), device = device)
+        
+     }
+  )
+  
   output$palavras = downloadHandler(
      filename = function() {
-        paste("listadepalavras.png", sep = "")
+        paste("palavras.png", sep = "")
      },
      content = function(file) {
         device <- function(..., width, height) {
