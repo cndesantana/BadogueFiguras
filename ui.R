@@ -26,7 +26,12 @@ fluidPage(
    mainPanel(
       tabsetPanel(type = "tabs",
         tabPanel("Lista de Palavras", downloadButton('palavras',"Download palavras mais usadas")),
-        tabPanel("Wordcloud", downloadButton('wordcloud',"Download Wordcloud"))
+        tabPanel("Lista de Palavras Negativas", downloadButton('palavrasnegativas',"Download palavras mais usadas em posts de polaridade negativa")),
+        tabPanel("Wordcloud Negativo", downloadButton('wordcloudnegativo',"Download Wordcloud de palavras usadas em posts de polaridade negativa")),
+        tabPanel("Lista de Palavras Positivas", downloadButton('palavraspositivas',"Download palavras mais usadas em posts de polaridade positiva")),
+        tabPanel("Wordcloud Positivo", downloadButton('wordcloudpositivo',"Download Wordcloud de palavras usadas em posts de polaridade positiva")),
+        tabPanel("Lista de Palavras Neutras", downloadButton('palavrasneutras',"Download palavras mais usadas em posts de polaridade neutra")),
+        tabPanel("Wordcloud Neutro", downloadButton('wordcloudneutro',"Download Wordcloud de palavras usadas em posts de polaridade neutra"))
       )
    )
 )

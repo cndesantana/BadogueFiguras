@@ -1,12 +1,16 @@
 library(shiny)
 library(plotrix)
-
+library(stringr)
+library(quanteda)
+library(readtext)
 library(tm)
 library(stringr)
 library(dplyr)
+library(wordcloud)
+
+badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra"," v ","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor")
 
 fa <- function(x) iconv(x, to = "ASCII//TRANSLIT")
-
 getMatrizDeOcorrencias <- function(text){
    text <- stringi::stri_trans_tolower(text)
    temp <- fa(text)
@@ -41,26 +45,6 @@ getMatrizDeOcorrencias <- function(text){
    return(d)
 }
 
-plotPalavras <- function(text, sentimento){
-
-   mycol <- switch(sentimento, 
-          geral = "gray50", 
-          negativo = "red",
-          positivo = "green",
-          neutro = "blue")
-   d <- getMatrizDeOcorrencias(text)
-   nwords <- ifelse(length(as.character(d[,1])) > 10, 10, length(as.character(d[,1])))
-   d <- d[1:nwords,]
-
-   p <- ggplot(d, aes(x = reorder(word, freq), y = freq)) + 
-      geom_bar( stat = "Identity" , fill = mycol) +
-      geom_text( aes (label = freq ) , vjust = - 0.10, hjust = -0.8, size = 2 ) +
-      xlab(NULL) + 
-      ylab("Número de Ocorrências") + 
-      coord_flip() 
-   print(p)
-}
-
 getIndiceDeSentimento <- function(polaridade){
    sentimentos <- toupper(polaridade)
    allsentimentos <- c("NEUTRO","NEGATIVO","POSITIVO");
@@ -74,21 +58,158 @@ getIndiceDeSentimento <- function(polaridade){
    return(indicesentimento)
 }
 
+getDFMatrix <- function(text){
+   myCorpus <- corpus(text)
+   metadoc(myCorpus, "language") <- "portuguese"
+   tokenInfo <- summary(myCorpus)
+   kwic(myCorpus, "gestor")
+   myStemMat <- dfm(myCorpus, remove = stopwords("portuguese"), stem = TRUE, remove_punct = TRUE)
+   mydfm <- dfm(myCorpus, remove = c(stopwords("portuguese"),badwords), remove_punct = TRUE, remove_numbers= TRUE)
+   return(mydfm)
+   #   ap_td <- tidy(mydfm)
+   #   names(ap_td) <- c("sentimento","term","count")
+   #   return(ap_td);
+}
+
 function(input, output) {
-  plotIndiceSentimentos = function() {
-    filepath <- input$file$datapath
-    file <- read_xlsx(filepath)
-    allpolaridade <- toupper(file$Polaridade)
-    isent <- getIndiceDeSentimento(allpolaridade);
-
-    plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
-    gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
-    text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
-    text(x = 0, y=10,  labels = 1,pos = 4)
-    text(x = 0, y=-10, labels = -1,pos = 4)
-
-#    qplot(speed, dist, data = cars)
+   plotPalavras = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo)
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 20)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = "magenta") + 
+         ylab("Numero de ocorrencias") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
+   plotIndiceSentimentos = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      allpolaridade <- toupper(file$Polaridade)
+      isent <- getIndiceDeSentimento(allpolaridade);
+      
+      plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
+      gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
+      text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
+      text(x = 0, y=10,  labels = 1,pos = 4)
+      text(x = 0, y=-10, labels = -1,pos = 4)
+      
+      #    qplot(speed, dist, data = cars)
+   }
+   
+   plotPalavrasNegativas = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 20)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = "red") + 
+         ylab("Numero de ocorrencias") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }   
+   
+   plotPalavrasPositivas = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "POSITIVO")])
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 20)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = "green") + 
+         ylab("Numero de ocorrencias") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
+   plotPalavrasNeutras = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEUTRO")])
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 20)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = "green") + 
+         ylab("Numero de ocorrencias") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
+  plotWordcloudNegativo = function(){
+     filepath <- input$file$datapath
+     file <- read_xlsx(filepath)
+     text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
+     mydfm <- getDFMatrix(text);
+     set.seed(100)
+     if(dim(mydfm)[1] <= 500){
+        textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
+                           rot.per = .25, 
+                           colors = RColorBrewer::brewer.pal(9,"Reds")[5:9])        
+     }
+     else{
+        textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
+                           rot.per = .25, 
+                           colors = RColorBrewer::brewer.pal(9,"Reds")[5:9])        
+     }
+     
   }
+  
+  plotWordcloudPositivo = function(){
+     filepath <- input$file$datapath
+     file <- read_xlsx(filepath)
+     text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "POSITIVO")])
+     mydfm <- getDFMatrix(text);
+     set.seed(100)
+     if(dim(mydfm)[1] <= 500){
+        textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
+                           rot.per = .25, 
+                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
+     }
+     else{
+        textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
+                           rot.per = .25, 
+                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
+     }
+     
+  }
+  
+  plotWordcloudNeutro = function(){
+     filepath <- input$file$datapath
+     file <- read_xlsx(filepath)
+     text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEUTRO")])
+     mydfm <- getDFMatrix(text);
+     set.seed(100)
+     if(dim(mydfm)[1] <= 500){
+        textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
+                           rot.per = .25, 
+                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
+     }
+     else{
+        textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
+                           rot.per = .25, 
+                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
+     }
+     
+  }
+  
+  ###### Outputs
+  
   output$indicesentimentos = downloadHandler(
     filename = 'indicesentimentos.png',
     content = function(file) {
@@ -99,45 +220,102 @@ function(input, output) {
       ggsave(file, plot = plotIndiceSentimentos(), device = device)
     })
 
-### Tratando a aba sobre lista de palavras
-  plotListaPalavras = function() {
-    filepath <- input$file$datapath
-    file <- read_xlsx(filepath)
-    allcomentarios <- file$Conteúo
-    plotPalavras(allcomentarios,"geral");
-  #  d <- getMatrizDeOcorrencias(allcomentarios);
-  
-  #  ggplot(d, aes(x = reorder(word, freq), y = freq)) + 
-  #        geom_bar( stat = "Identity" , fill = mycol) +
-  #        geom_text( aes (label = freq ) , vjust = - 0.10, hjust = -0.8, size = 2 ) +
-  #        xlab(NULL) + 
-  #        ylab("Número de Ocorrências") + 
-  #        coord_flip()
-  #  plot(hist(as.numeric(d$freq))); 
-  
-  }
   output$palavras = downloadHandler(
-    filename = 'palavras.png',
-    content = function(file) {
-      device <- function(..., width, height) {
-        grDevices::png(..., width = width, height = height,
-                       res = 300, units = "in")
-      }
-      ggsave(file, plot = plotListaPalavras(), device = device)
-    })
+     filename = function() {
+        paste("listadepalavras.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPalavras(), device = device)
+        
+     }
+  )
+  
+  output$palavrasnegativas = downloadHandler(
+     filename = function() {
+        paste("listadepalavrasnegativas.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPalavrasNegativas(), device = device)
+        
+     }
+  )
+  
+  output$palavraspositivas = downloadHandler(
+     filename = function() {
+        paste("listadepalavraspositivas.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPalavrasPositivas(), device = device)
+        
+     }
+  )
 
-### Tratando a aba sobre o wordcloud
-  plotWordcloud = function() {
-    plot(1:1000,log(1:1000));
-  }
-  output$wordcloud = downloadHandler(
-    filename = 'wordcloud.png',
-    content = function(file) {
-      device <- function(..., width, height) {
-        grDevices::png(..., width = width, height = height,
-                       res = 300, units = "in")
-      }
-      ggsave(file, plot = plotWordcloud(), device = device)
-    })
+  output$palavrasneutras = downloadHandler(
+     filename = function() {
+        paste("listadepalavrasneutras.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPalavrasNeutras(), device = device)
+        
+     }
+  )
+  
+  output$wordcloudnegativo = downloadHandler(
+     filename = function() {
+        paste("wordcloudnegativo.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotWordcloudNegativo(), device = device)
+        
+     }     
+  )
+  
+  output$wordcloudpositivo = downloadHandler(
+     filename = function() {
+        paste("wordcloudpositivo.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotWordcloudPositivo(), device = device)
+        
+     }     
+  )
+  
+  output$wordcloudneutro = downloadHandler(
+     filename = function() {
+        paste("wordcloudneutro.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotWordcloudNeutro(), device = device)
+        
+     }     
+  )
 
 }
