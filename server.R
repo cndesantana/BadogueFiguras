@@ -141,6 +141,27 @@ function(input, output) {
          coord_flip()
    }
    
+   plotGenero = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      file$Genero[which(is.na(file$Genero))] <- "Não declarado"
+      file %>% 
+         select(Genero, Polaridade) %>%
+         group_by(Genero) %>% 
+         count(Genero, Polaridade) %>%
+         arrange(n, Genero) %>%
+         tail(50) %>% 
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = Genero, y = as.numeric(n), fill = Polaridade)
+         ) + 
+         ylab("Numero de comentários") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
    plotPalavras = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
@@ -317,6 +338,20 @@ function(input, output) {
                           res = 300, units = "in")
         }
         ggsave(file, plot = plotDetratoresApoiadores(), device = device)
+        
+     }     
+  )
+  
+  output$genero = downloadHandler(
+     filename = function() {
+        paste("genero.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotGenero(), device = device)
         
      }     
   )

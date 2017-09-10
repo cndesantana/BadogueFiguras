@@ -24,6 +24,7 @@ fluidPage(
    downloadButton('indicesentimentos',"Download Indice de Sentimento (IS)"),
    downloadButton('variabilidade',"Download variabilidade do IS"),
    downloadButton('detratoresapoiadores',"Download lista de detratores e apoiadores"),
+   downloadButton('genero',"Download polaridade de comentários por gênero"),
    
    tags$hr(),
    downloadButton('palavras',"Download palavras mais usadas"),
