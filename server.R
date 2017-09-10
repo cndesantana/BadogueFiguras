@@ -71,21 +71,42 @@ getDFMatrix <- function(text){
    #   return(ap_td);
 }
 
+ggplotColours <- function(n = 6, h = c(0, 360) + 15){
+   if ((diff(h) %% 360) < 1) h[2] <- h[2] - 360/n
+   hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
+}
+
 function(input, output) {
+
+   plotIndiceSentimentos = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      allpolaridade <- toupper(file$Polaridade)
+      isent <- getIndiceDeSentimento(allpolaridade);
+      
+      plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
+      gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
+      text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
+      text(x = 0, y=10,  labels = 1,pos = 4)
+      text(x = 0, y=-10, labels = -1,pos = 4)
+      
+      #    qplot(speed, dist, data = cars)
+   }
+
    plotVariabilidade = function() {
       filepath <- input$file$datapath
-      dat <- read_xlsx(filepath)
-      datasPosts <- as.Date(dat$Data,format="%d/%m/%Y")
+      file <- read_xlsx(filepath)
+      datasPosts <- as.Date(file$Data,format="%d/%m/%Y")
       uniqueDataPosts <- unique(sort(datasPosts))
       mymatrix <- list();
       for(idata in 1:length(uniqueDataPosts)){
          data <- uniqueDataPosts[idata];
          posData <- which(datasPosts == data)
-         idPostsData <- dat$`ID do Post`[posData]
+         idPostsData <- file$`ID do Post`[posData]
          uniqueIdsPostsData <- unique(sort(idPostsData))
          for(iposts in 1:length(uniqueIdsPostsData)){
             idPost <- uniqueIdsPostsData[iposts]
-            polaridadePostData <- dat$Polaridade[which(dat$`ID do Post`[posData] == idPost)]
+            polaridadePostData <- file$Polaridade[which(file$`ID do Post`[posData] == idPost)]
             if(length(polaridadePostData) >= 5){
                sentimento <- getIndiceDeSentimento(polaridadePostData);
                cat(paste(datasPosts[idata],length(polaridadePostData), idPost,sentimento,sep=" "),sep="\n");
@@ -101,19 +122,23 @@ function(input, output) {
          xlab("Data") + ylab("Sentimento dos Posts")
    }
    
-   plotIndiceSentimentos = function() {
+   plotDetratoresApoiadores = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
-      allpolaridade <- toupper(file$Polaridade)
-      isent <- getIndiceDeSentimento(allpolaridade);
-      
-      plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
-      gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
-      text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
-      text(x = 0, y=10,  labels = 1,pos = 4)
-      text(x = 0, y=-10, labels = -1,pos = 4)
-      
-      #    qplot(speed, dist, data = cars)
+      file %>% 
+         select(`Autor ID`, Polaridade) %>%
+         group_by(`Autor ID`) %>% 
+         count(`Autor ID`, Polaridade) %>%
+         arrange(n, `Autor ID`) %>%
+         tail(50) %>% 
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), fill = Polaridade)) + 
+         ylab("Numero de comentários") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
    }
    
    plotPalavras = function() {
@@ -179,8 +204,27 @@ function(input, output) {
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
-   
-  plotWordcloudNegativo = function(){
+
+   plotWordcloud = function(){
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo)
+      mydfm <- getDFMatrix(text);
+      set.seed(100)
+      if(dim(mydfm)[1] <= 500){
+         textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
+                            rot.per = .25, 
+                            colors = RColorBrewer::brewer.pal(9,"Dark2")[5:9])        
+      }
+      else{
+         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
+                            rot.per = .25, 
+                            colors = RColorBrewer::brewer.pal(9,"Dark2")[5:9])        
+      }
+      
+   }
+      
+   plotWordcloudNegativo = function(){
      filepath <- input$file$datapath
      file <- read_xlsx(filepath)
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
@@ -263,6 +307,20 @@ function(input, output) {
      }
   )
   
+  output$detratoresapoiadores = downloadHandler(
+     filename = function() {
+        paste("detratoresapoiadores.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotDetratoresApoiadores(), device = device)
+        
+     }     
+  )
+  
   output$palavras = downloadHandler(
      filename = function() {
         paste("palavras.png", sep = "")
@@ -317,6 +375,20 @@ function(input, output) {
         ggsave(file, plot = plotPalavrasNeutras(), device = device)
         
      }
+  )
+  
+  output$wordcloud = downloadHandler(
+     filename = function() {
+        paste("wordcloud.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotWordcloud(), device = device)
+        
+     }     
   )
   
   output$wordcloudnegativo = downloadHandler(

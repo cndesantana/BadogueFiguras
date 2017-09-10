@@ -22,18 +22,32 @@ fluidPage(
    titlePanel("Badogue's Figure download"),
    fileInput('file', 'Escolha o Arquivo EXCEL', accept=c('.xlsx')),
    downloadButton('indicesentimentos',"Download Indice de Sentimento (IS)"),
-   downloadButton('variabilidade',"Download da variabilidade do IS"),
+   downloadButton('variabilidade',"Download variabilidade do IS"),
+   downloadButton('detratoresapoiadores',"Download lista de detratores e apoiadores"),
+   
    tags$hr(),
+   downloadButton('palavras',"Download palavras mais usadas"),
+   downloadButton('palavrasnegativas',"Download palavras mais usadas em posts de polaridade negativa"),
+   downloadButton('palavraspositivas',"Download palavras mais usadas em posts de polaridade positiva"),
+   downloadButton('palavrasneutras',"Download palavras mais usadas em posts de polaridade neutra"),
+   tags$hr(),
+
+   downloadButton('wordcloud',"Download Wordcloud de palavras mais usadas"),   
+   downloadButton('wordcloudnegativo',"Download Wordcloud de palavras usadas em posts de polaridade negativa"),
+   downloadButton('wordcloudpositivo',"Download Wordcloud de palavras usadas em posts de polaridade positiva"),
+   downloadButton('wordcloudneutro',"Download Wordcloud de palavras usadas em posts de polaridade neutra"),
+   tags$hr(),
+   
    mainPanel(
-      tabsetPanel(type = "tabs",
-        tabPanel("Lista de Palavras", downloadButton('palavras',"Download palavras mais usadas")),
-        tabPanel("Lista de Palavras Negativas", downloadButton('palavrasnegativas',"Download palavras mais usadas em posts de polaridade negativa")),
-        tabPanel("Wordcloud Negativo", downloadButton('wordcloudnegativo',"Download Wordcloud de palavras usadas em posts de polaridade negativa")),
-        tabPanel("Lista de Palavras Positivas", downloadButton('palavraspositivas',"Download palavras mais usadas em posts de polaridade positiva")),
-        tabPanel("Wordcloud Positivo", downloadButton('wordcloudpositivo',"Download Wordcloud de palavras usadas em posts de polaridade positiva")),
-        tabPanel("Lista de Palavras Neutras", downloadButton('palavrasneutras',"Download palavras mais usadas em posts de polaridade neutra")),
-        tabPanel("Wordcloud Neutro", downloadButton('wordcloudneutro',"Download Wordcloud de palavras usadas em posts de polaridade neutra"))
-      )
+#      tabsetPanel(type = "tabs",
+#        tabPanel("Lista de Palavras", downloadButton('palavras',"Download palavras mais usadas")),
+#        tabPanel("Lista de Palavras Negativas", downloadButton('palavrasnegativas',"Download palavras mais usadas em posts de polaridade negativa")),
+#        tabPanel("Wordcloud Negativo", downloadButton('wordcloudnegativo',"Download Wordcloud de palavras usadas em posts de polaridade negativa")),
+#        tabPanel("Lista de Palavras Positivas", downloadButton('palavraspositivas',"Download palavras mais usadas em posts de polaridade positiva")),
+#        tabPanel("Wordcloud Positivo", downloadButton('wordcloudpositivo',"Download Wordcloud de palavras usadas em posts de polaridade positiva")),
+#        tabPanel("Lista de Palavras Neutras", downloadButton('palavrasneutras',"Download palavras mais usadas em posts de polaridade neutra")),
+#        tabPanel("Wordcloud Neutro", downloadButton('wordcloudneutro',"Download Wordcloud de palavras usadas em posts de polaridade neutra"))
+#      )
    )
 )
 
