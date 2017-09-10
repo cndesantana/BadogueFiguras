@@ -60,6 +60,23 @@ getIndiceDeSentimento <- function(polaridade){
    return(indicesentimento)
 }
 
+getPositionY <- function(test){
+   labelpos <- array(NA,length(test$Polaridade))
+   labelpos[ which(test$Polaridade == "POSITIVO") ] <- "0.02"
+   labelpos[ which(test$Polaridade == "NEGATIVO") ] <- "0.98"
+   datasb <- test$Data[which(test$Polaridade == "NEUTRO")];
+   posvarb <- which(test$Polaridade == "NEUTRO");
+   for(i in 1:length(datasb)){
+      datasb_ <- datasb[i];
+      positionobsb <- which(test$Data == datasb_ & test$Polaridade == "POSITIVO")
+      obsb <- ifelse(length(positionobsb) > 0, test$freq[positionobsb], 0);
+      labelpos[posvarb[i]] <- obsb + 0.02
+   }
+   return(as.numeric(labelpos))
+}
+
+
+
 getDFMatrix <- function(text){
    myCorpus <- corpus(text)
    metadoc(myCorpus, "language") <- "portuguese"
@@ -123,6 +140,36 @@ function(input, output) {
          theme_bw() +
          xlab("Data") + ylab("Sentimento dos Posts")
    }
+   
+   
+   plotCurtidasComentarios = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      file %>% 
+         select(`Autor ID`, Polaridade, Comentários, Curtidas) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         #   filter(Polaridade == "Negativo") %>%
+         arrange(`Autor ID`) %>%
+         summarise(totalCurtidas = sum(as.numeric(Curtidas)), 
+                   totalComentarios = sum(as.numeric(Comentários))) %>%
+         arrange(totalComentarios, totalCurtidas) %>%
+         filter(totalComentarios >= 0) %>%
+         tail(50) %>%
+         ggplot() + 
+         geom_point(aes(x = totalComentarios, 
+                        y = totalCurtidas, 
+                        col = Polaridade)) + 
+         ylab("Número de Curtidas") +
+         xlab("Número de Comentários") +
+         geom_text( aes (x = as.numeric(totalComentarios), 
+                         y = as.numeric(totalCurtidas), 
+                         label = ifelse(totalCurtidas > 5, `Autor ID`,"") ) , 
+                    vjust = 0, hjust = 1, size = 2.5 )
+
+   }
+   
+   
 
    plotComentaristasPopulares = function() {
       filepath <- input$file$datapath
@@ -335,23 +382,34 @@ function(input, output) {
    plotSerieTemporal = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
-      datas <- file$Data %>%
-         as.Date(format = "%d/%m/%Y") %>%
-         format(., "%d/%m/%Y")
-      uniquedatas <- unique(sort(datas))
-      polaridades <- file$Polaridade   
-      df_datas <- tibble(datas, polaridades)
+
+      amostra <- file
+      df_datas <- amostra %>%
+         mutate( Data = dmy_hm(Data) %>%
+                    as.Date() %>%
+                    format("%d/%m/%Y"),
+                 Polaridade = as.factor(toupper(Polaridade))
+         ) %>%
+         group_by(Data, Polaridade) %>%
+         summarise(count = n()) %>%
+         group_by(Data) %>%
+         mutate(freq = count / sum(count))
       
-      df_datas %>% 
-         group_by(datas, polaridades) %>% 
-         summarise (n = n()) %>%
-         mutate(freq = 100*n / sum(n)) %>%
-         ggplot() +
-         geom_bar(position = "stack", stat = "identity", aes(x = datas, y = freq, fill = polaridades)) +
+      primeirodia <- min(df_datas$Data);
+      ultimodia <- max(df_datas$Data)
+      ggplot(df_datas, aes(x=dmy(Data), y=freq, fill=Polaridade)) +
+         geom_bar(position = "stack", stat = "identity") +
+         scale_x_date(date_breaks = "1 day",
+                      labels = date_format("%d/%m/%Y")) +
+         theme(text = element_text(size=6), axis.text.x = element_text(angle=90, hjust=1)) +
+         scale_y_continuous(labels=scales::percent) +
          labs (title = "") +
          labs (x = "", y = "Porcentagem de Posts") +
          theme(text = element_text(size=6), axis.text.x = element_text(angle=45, hjust=1)) +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3]))
+         scale_fill_discrete(name="Sentimento") +
+         coord_cartesian(xlim = c(dmy(primeirodia), dmy(ultimodia))) +
+         scale_fill_manual("Sentimentos", values = c("POSITIVO" = ggplotColours(n=4)[2], "NEGATIVO" = ggplotColours(n=4)[1], "NEUTRO" = ggplotColours(n=4)[3], "GOVERNO" = ggplotColours(n=4)[4])) +
+         geom_text(size = 2, col = "white", aes(x = dmy(Data), y = getPositionY(df_datas), label = paste(as.character(100*round(df_datas$freq,2)),"%",sep="")));
       
    }
    
@@ -792,6 +850,20 @@ function(input, output) {
                           res = 300, units = "in")
         }
         ggsave(file, plot = plotWordcloudNeutro(), device = device)
+        
+     }     
+  )
+  
+  output$curtidascomentarios = downloadHandler(
+     filename = function() {
+        paste("curtidascomentarios.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotCurtidasComentarios(), device = device)
         
      }     
   )

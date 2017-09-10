@@ -26,6 +26,7 @@ fluidPage(
    downloadButton('variabilidade',"Download variabilidade do IS"),
    downloadButton('serietemporal',"Download série temporal de sentimentos"),
    downloadButton('genero',"Download polaridade de comentários por gênero"),
+   downloadButton('curtidascomentarios',"Download usuários por número de curtidas e comentários"),
    tags$hr("Detratores e Apoiadores",br()),
    downloadButton('detratorescurtidos',"Download lista de detratores mais curtidos"),
    downloadButton('detratoresassiduos',"Download lista de detratores mais participativos"),
