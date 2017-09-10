@@ -281,7 +281,7 @@ function(input, output) {
          select(`Autor ID`)
       
       text <- file %>%
-         filter(as.character(`Autor ID`) %in% autores$`Autor ID`) %>%
+         filter(as.character(`Autor ID`) %in% autores$`Autor ID`, Polaridade == "Negativo") %>%
          select(Conteúdo) %>%
          toupper()
       
@@ -315,7 +315,7 @@ function(input, output) {
          select(`Autor ID`)
       
       text <- file %>%
-         filter(as.character(`Autor ID`) %in% autores$`Autor ID`) %>%
+         filter(as.character(`Autor ID`) %in% autores$`Autor ID`, Polaridade == "Positivo") %>%
          select(Conteúdo) %>%
          toupper()
       
