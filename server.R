@@ -7,8 +7,10 @@ library(tm)
 library(stringr)
 library(dplyr)
 library(wordcloud)
+library(scales)
 
-badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra"," v ","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor")
+
+badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor")
 
 fa <- function(x) iconv(x, to = "ASCII//TRANSLIT")
 getMatrizDeOcorrencias <- function(text){
@@ -160,6 +162,199 @@ function(input, output) {
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
+   
+   plotDetratoresCurtidos = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+
+      file %>% 
+         select(`Autor ID`, Polaridade, Curtidas) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         arrange(`Autor ID`, Polaridade, Curtidas) %>%
+         filter(Polaridade == "Negativo", Curtidas > 0) %>%
+         arrange(`Autor ID`, Curtidas) %>%
+         summarise(total = sum(as.numeric(Curtidas))) %>%
+         arrange(total) %>%
+         filter(total > 3) %>%
+         tail(50) %>%
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
+         ) + 
+         ylab("Numero de Curtidas") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
+   plotDetratoresAssiduos = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      file %>% 
+         select(`Autor ID`, Polaridade) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         arrange(`Autor ID`, Polaridade) %>%
+         filter(Polaridade == "Negativo") %>%
+         arrange(`Autor ID`) %>%
+         summarise(total = n()) %>%
+         arrange(total) %>%
+         filter(total > 3) %>%
+         tail(50) %>%
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
+         ) + 
+         ylab("Numero de Comentários") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+
+   
+   plotApoiadoresCurtidos = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      file %>% 
+         select(`Autor ID`, Polaridade, Curtidas) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         arrange(`Autor ID`, Polaridade, Curtidas) %>%
+         filter(Polaridade == "Positivo", Curtidas > 0) %>%
+         arrange(`Autor ID`, Curtidas) %>%
+         summarise(total = sum(as.numeric(Curtidas))) %>%
+         arrange(total) %>%
+         filter(total > 3) %>%
+         tail(50) %>%
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
+         ) + 
+         ylab("Numero de Curtidas") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
+   plotApoiadoresAssiduos = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      file %>% 
+         select(`Autor ID`, Polaridade) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         arrange(`Autor ID`, Polaridade) %>%
+         filter(Polaridade == "Positivo") %>%
+         arrange(`Autor ID`) %>%
+         summarise(total = n()) %>%
+         arrange(total) %>%
+         filter(total > 3) %>%
+         tail(50) %>%
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
+         ) + 
+         ylab("Numero de Comentários") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+   
+   plotPalavrasDetratores = function(){
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      autores <- file %>% 
+         select(`Autor ID`, Polaridade) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         arrange(`Autor ID`, Polaridade) %>%
+         filter(Polaridade == "Negativo") %>%
+         arrange(`Autor ID`) %>%
+         summarise(total = n()) %>%
+         arrange(total) %>%
+         filter(total > 3) %>%
+         tail(50) %>%
+         select(`Autor ID`)
+      
+      text <- file %>%
+         filter(as.character(`Autor ID`) %in% autores$`Autor ID`) %>%
+         select(Conteúdo) %>%
+         toupper()
+      
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 50)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = ggplotColours(n=3)[1]) + 
+         ylab("Número de ocorrências") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()      
+      
+   }
+   
+   plotPalavrasApoiadores = function(){
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      autores <- file %>% 
+         select(`Autor ID`, Polaridade) %>%
+         group_by(`Autor ID`, Polaridade) %>% 
+         arrange(`Autor ID`, Polaridade) %>%
+         filter(Polaridade == "Positivo") %>%
+         arrange(`Autor ID`) %>%
+         summarise(total = n()) %>%
+         arrange(total) %>%
+         filter(total > 3) %>%
+         tail(50) %>%
+         select(`Autor ID`)
+      
+      text <- file %>%
+         filter(as.character(`Autor ID`) %in% autores$`Autor ID`) %>%
+         select(Conteúdo) %>%
+         toupper()
+      
+      mydfm <- getDFMatrix(text);
+      words_td <- topfeatures(mydfm, 50)
+      ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  fill = ggplotColours(n=3)[2]) + 
+         ylab("Número de ocorrências") +
+         xlab("") +
+         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+      
+   }
+      
+   plotSerieTemporal = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      datas <- file$Data %>%
+         as.Date(format = "%d/%m/%Y") %>%
+         format(., "%d/%m/%Y")
+      uniquedatas <- unique(sort(datas))
+      polaridades <- file$Polaridade   
+      df_datas <- tibble(datas, polaridades)
+      
+      df_datas %>% 
+         group_by(datas, polaridades) %>% 
+         summarise (n = n()) %>%
+         mutate(freq = 100*n / sum(n)) %>%
+         ggplot() +
+         geom_bar(position = "stack", stat = "identity", aes(x = datas, y = freq, fill = polaridades)) +
+         labs (title = "") +
+         labs (x = "", y = "Porcentagem de Posts") +
+         theme(text = element_text(size=6), axis.text.x = element_text(angle=45, hjust=1)) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3]))
+      
+   }
+   
    
    plotGenero = function() {
       filepath <- input$file$datapath
@@ -376,6 +571,91 @@ function(input, output) {
      }     
   )
   
+  output$detratorescurtidos = downloadHandler(
+     filename = function() {
+        paste("detratorescurtidos.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotDetratoresCurtidos(), device = device)
+        
+     }     
+  )
+  
+  output$detratoresassiduos = downloadHandler(
+     filename = function() {
+        paste("detratoresassiduos.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotDetratoresAssiduos(), device = device)
+        
+     }     
+  )
+  
+  
+  output$apoiadorescurtidos = downloadHandler(
+     filename = function() {
+        paste("apoiadorescurtidos.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotApoiadoresCurtidos(), device = device)
+        
+     }     
+  )
+  
+  output$apoiadoresassiduos = downloadHandler(
+     filename = function() {
+        paste("apoiadoresassiduos.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotApoiadoresAssiduos(), device = device)
+        
+     }     
+  )
+  
+  output$palavrasapoiadores = downloadHandler(
+     filename = function() {
+        paste("palavrasapoiadores.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPalavrasApoiadores(), device = device)
+        
+     }     
+  )
+  
+  output$palavrasdetratores = downloadHandler(
+     filename = function() {
+        paste("palavrasdetratores.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPalavrasDetratores(), device = device)
+        
+     }     
+  )
+  
   output$genero = downloadHandler(
      filename = function() {
         paste("genero.png", sep = "")
@@ -386,6 +666,20 @@ function(input, output) {
                           res = 300, units = "in")
         }
         ggsave(file, plot = plotGenero(), device = device)
+        
+     }     
+  )
+  
+  output$serietemporal = downloadHandler(
+     filename = function() {
+        paste("serietemporal.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotSerieTemporal(), device = device)
         
      }     
   )
