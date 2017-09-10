@@ -121,7 +121,27 @@ function(input, output) {
          theme_bw() +
          xlab("Data") + ylab("Sentimento dos Posts")
    }
-   
+
+   plotComentaristasPopulares = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      file %>% 
+         select(`Autor ID`, Curtidas, Polaridade) %>%
+         group_by(`Autor ID`) %>% 
+         count(`Autor ID`, Curtidas, Polaridade) %>%
+         arrange(n, `Autor ID`) %>%
+         tail(50) %>% 
+         ggplot() + 
+         geom_bar(stat = "identity", 
+                  aes(x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), fill = Polaridade)
+         ) + 
+         ylab("Numero de Curtidas em Comentários") +
+         xlab("") +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
+         coord_flip()
+   }
+      
    plotDetratoresApoiadores = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
@@ -327,7 +347,21 @@ function(input, output) {
         
      }
   )
-  
+
+  output$comentaristaspopulares = downloadHandler(
+     filename = function() {
+        paste("comentaristaspopulares.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotComentaristasPopulares(), device = device)
+        
+     }     
+  )
+    
   output$detratoresapoiadores = downloadHandler(
      filename = function() {
         paste("detratoresapoiadores.png", sep = "")

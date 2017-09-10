@@ -23,7 +23,8 @@ fluidPage(
    fileInput('file', 'Escolha o Arquivo EXCEL', accept=c('.xlsx')),
    downloadButton('indicesentimentos',"Download Indice de Sentimento (IS)"),
    downloadButton('variabilidade',"Download variabilidade do IS"),
-   downloadButton('detratoresapoiadores',"Download lista de detratores e apoiadores"),
+   downloadButton('comentaristaspopulares',"Download lista de comentaristas mais populares"),
+   downloadButton('detratoresapoiadores',"Download lista de detratores e apoiadores em comentários"),
    downloadButton('genero',"Download polaridade de comentários por gênero"),
    
    tags$hr(),
