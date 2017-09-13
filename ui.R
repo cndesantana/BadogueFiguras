@@ -25,6 +25,7 @@ fluidPage(
    downloadButton('indicesentimentos',"Download Indice de Sentimento (IS)"),
    downloadButton('variabilidade',"Download variabilidade do IS"),
    downloadButton('serietemporal',"Download série temporal de sentimentos"),
+   downloadButton('plotpostsporsentimento',"Download lista de posts por ordem de IS"),
    downloadButton('genero',"Download polaridade de comentários por gênero"),
 #   downloadButton('curtidascomentarios',"Download usuários por número de curtidas e comentários"),
    tags$hr("Detratores",br()),

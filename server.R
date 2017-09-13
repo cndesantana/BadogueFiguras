@@ -96,6 +96,43 @@ ggplotColours <- function(n = 6, h = c(0, 360) + 15){
 }
 
 function(input, output) {
+   
+   plotPostsPorSentimento = function(){
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      idPostsData <- file$`ID do Post`
+      uniqueIdsPostsData <- unique(sort(idPostsData))
+      mymatrix <- list();
+      for(iposts in 1:length(uniqueIdsPostsData)){
+         idPost <- uniqueIdsPostsData[iposts]
+         polaridadePostData <- file$Polaridade[which(file$`ID do Post` == idPost)]
+         if(length(polaridadePostData) >= 5){
+            sentimento <- getIndiceDeSentimento(polaridadePostData);
+            cat(paste(idPost,sentimento,length(polaridadePostData),sep=" "),sep="\n");
+            mymatrix <- rbind(mymatrix,cbind(as.character(idPost),sentimento, length(polaridadePostData)))         
+         }
+      }
+      
+      mymatrix <- data.frame(mymatrix)
+      colnames(mymatrix) <- c("id","sentimento","ncomentarios")
+      mymatrix$id <- unlist(mymatrix$id)
+      mymatrix$sentimento <- as.numeric(unlist(mymatrix$sentimento))
+      mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
+      
+      mymatrix %>% 
+         select(id, sentimento, ncomentarios) %>% 
+         group_by(id, sentimento, ncomentarios) %>% 
+         arrange(sentimento, ncomentarios) %>%
+         filter(ncomentarios > 100) %>%
+         tail(60) %>%
+         ggplot() + 
+         geom_bar(stat="identity", aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento))) + 
+         scale_fill_manual("red") +
+         xlab("") + ylab("Sentimento dos Posts") + 
+         geom_text( aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento), label = signif(as.numeric(sentimento),2) ) , vjust = 0, hjust = 0, size = 3 ) +
+         coord_flip()
+      
+   }
 
    plotIndiceSentimentos = function() {
       filepath <- input$file$datapath
@@ -852,6 +889,21 @@ function(input, output) {
         ggsave(file, plot = plotWordcloudNeutro(), device = device)
         
      }     
+  )
+  
+  output$plotpostsporsentimento = downloadHandler(
+     filename = function() {
+        paste("postsporsentimento.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPostsPorSentimento(), device = device)
+        
+     }     
+     
   )
   
   output$curtidascomentarios = downloadHandler(
