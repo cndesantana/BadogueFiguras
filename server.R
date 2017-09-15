@@ -8,9 +8,27 @@ library(stringr)
 library(dplyr)
 library(wordcloud)
 library(scales)
+library(raster)
 
 
 badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor")
+
+getScreenshot <- function(link1, filename1){
+   workdir <- "figures_badogue"
+   if(file.exists(workdir)){
+      resolution <- "800x600"
+      
+      outputfile1 <- file.path(workdir,filename1)
+      command1 = paste("pageres ", link1, " ", resolution, " --format='jpg' --verbose --hide='.page-header' --filename=",outputfile1,sep="")
+      if(length(system(paste("ls ",outputfile1),intern=TRUE))==0){
+         system(command1)
+      }else{
+         system(paste("sudo rm ",workdir,"/",outputfile1,sep=""))
+         system(command1)
+      }
+   }
+}
+
 
 fa <- function(x) iconv(x, to = "ASCII//TRANSLIT")
 getMatrizDeOcorrencias <- function(text){
@@ -96,6 +114,66 @@ ggplotColours <- function(n = 6, h = c(0, 360) + 15){
 }
 
 function(input, output) {
+   
+   plotMelhorPiorPosts = function(){
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      
+      idPostsData <- file$`ID do Post`
+      uniqueIdsPostsData <- unique(sort(idPostsData))
+      mymatrix <- list();
+      for(iposts in 1:length(uniqueIdsPostsData)){
+         idPost <- uniqueIdsPostsData[iposts]
+         posPosts <- which(file$`ID do Post` == idPost)
+         link <- as.character(file$Link)[posPosts][1]
+         polaridadePostData <- file$Polaridade[posPosts]
+         if(length(polaridadePostData) >= 5){
+            sentimento <- getIndiceDeSentimento(polaridadePostData);
+            cat(paste(idPost,sentimento,length(polaridadePostData),link,sep=" "),sep="\n");
+            mymatrix <- rbind(mymatrix,cbind(as.character(idPost),sentimento, length(polaridadePostData), as.character(link)))         
+         }
+      }
+      
+      mymatrix <- data.frame(mymatrix)
+      colnames(mymatrix) <- c("id","sentimento","ncomentarios","links")
+      mymatrix$id <- unlist(mymatrix$id)
+      mymatrix$sentimento <- as.numeric(unlist(mymatrix$sentimento))
+      mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
+      mymatrix$links <- as.character(unlist(mymatrix$links))
+      
+      referencias <- c(mymatrix %>% arrange(sentimento, ncomentarios) %>% tail(1) %>% select(id), mymatrix %>% arrange(sentimento, ncomentarios) %>% head(1) %>% select(id))
+
+      plot(-14:14,axes=FALSE,xlab="",ylab="",type="n")
+      gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
+      text(x = 0, y=10,  labels = 1,pos = 4)
+      text(x = 0, y=-10, labels = -1,pos = 4)
+
+      posReferenciasSentimento <- c(which(mymatrix$id==unlist(referencias)[1]),
+                                    which(mymatrix$id==unlist(referencias)[2])
+      )
+      
+      pos1 <- posReferenciasSentimento[1]
+      pos2 <- posReferenciasSentimento[2]
+      link1 <- mymatrix$links[pos1]
+      link2 <- mymatrix$links[pos2]
+      getScreenshot(link1, "post1")
+      getScreenshot(link2, "post2")
+
+      ima <- readJPEG("~/figures_badogue/post2.jpg")   
+      isent <- mymatrix$sentimento[pos1]
+      rasterImage(ima, xleft = 7, ybottom=10*signif(isent,2)-4, xright = 13, ytop =10*signif(isent,2)+4)
+      idpostsent <- mymatrix$id[pos1]
+      text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
+#      text(x = 7*((is%%2)+1), y=10*signif(isent,2), labels = idpostsent,pos = 4)
+      
+      ima2 <- readJPEG("~/figures_badogue/post1.jpg")   
+      isent2 <- mymatrix$sentimento[pos2]
+      rasterImage(ima2, xleft = 7, ybottom=10*signif(isent2,2)-4, xright = 13, ytop =10*signif(isent2,2)+4)
+      idpostsent2 <- mymatrix$id[pos2]
+      text(x = 3, y=10*signif(isent2,2), labels = paste(intToUtf8(9664),signif(isent2,2)),pos = 4)
+#      text(x = 7*((is%%2)+1), y=10*signif(isent2,2), labels = idpostsent2,pos = 4)
+
+   }
    
    plotPostsPorSentimento = function(){
       filepath <- input$file$datapath
@@ -919,5 +997,21 @@ function(input, output) {
         
      }     
   )
+  
+  output$melhorpiorposts = downloadHandler(
+     filename = function() {
+        paste("melhorpiorposts.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotMelhorPiorPosts(), device = device)
+        
+     }     
+  )
+  
+  
 
 }
