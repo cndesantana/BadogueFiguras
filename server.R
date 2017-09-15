@@ -142,7 +142,9 @@ function(input, output) {
       mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
       mymatrix$links <- as.character(unlist(mymatrix$links))
       
-      referencias <- c(mymatrix %>% arrange(sentimento, ncomentarios) %>% tail(1) %>% select(id), mymatrix %>% arrange(sentimento, ncomentarios) %>% head(1) %>% select(id))
+      subset1 <- mymatrix %>% arrange(sentimento, ncomentarios) %>% tail(1)
+      subset2 <- mymatrix %>% arrange(sentimento, ncomentarios) %>% head(1)
+      referencias <- c(subset1$id, subset2$id)
 
       plot(-14:14,axes=FALSE,xlab="",ylab="",type="n")
       gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
