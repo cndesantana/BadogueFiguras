@@ -9,6 +9,7 @@ library(dplyr)
 library(wordcloud)
 library(scales)
 library(raster)
+library(jpeg)
 
 
 badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor")
