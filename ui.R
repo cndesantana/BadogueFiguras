@@ -23,7 +23,7 @@ fluidPage(
    fileInput('file', 'Escolha o Arquivo EXCEL', accept=c('.xlsx')),
    tags$hr("Índice de Sentimento",br()),
    downloadButton('indicesentimentos',"Download Indice de Sentimento geral (IS)"),
-   downloadButton('melhorpiorposts',"Download melhor e pior posts por IS"),
+#   downloadButton('melhorpiorposts',"Download melhor e pior posts por IS"),
    downloadButton('variabilidade',"Download variabilidade do IS"),
    downloadButton('serietemporal',"Download série temporal de sentimentos"),
    downloadButton('plotpostsporsentimento',"Download lista de posts por ordem de IS"),

@@ -17,10 +17,10 @@ badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para",
 getScreenshot <- function(link1, filename1){
    workdir <- "figures_badogue"
    if(file.exists(workdir)){
-      resolution <- "800x600"
+      resolution <- "1366x768"
       
       outputfile1 <- file.path(workdir,filename1)
-      command1 = paste("pageres ", link1, " ", resolution, " --format='jpg' --verbose --hide='.page-header' --filename=",outputfile1,sep="")
+      command1 = paste("pageres ", link1, " ", resolution, " --format='jpg' --verbose --sector='.contentArea' --filename=",outputfile1,sep="")
       if(length(system(paste("ls ",outputfile1),intern=TRUE))==0){
          system(command1)
       }else{
@@ -29,7 +29,6 @@ getScreenshot <- function(link1, filename1){
       }
    }
 }
-
 
 fa <- function(x) iconv(x, to = "ASCII//TRANSLIT")
 getMatrizDeOcorrencias <- function(text){
@@ -126,22 +125,20 @@ function(input, output) {
       for(iposts in 1:length(uniqueIdsPostsData)){
          idPost <- uniqueIdsPostsData[iposts]
          posPosts <- which(file$`ID do Post` == idPost)
-         link <- as.character(file$Link)[posPosts][1]
          polaridadePostData <- file$Polaridade[posPosts]
          if(length(polaridadePostData) >= 5){
             sentimento <- getIndiceDeSentimento(polaridadePostData);
-            cat(paste(idPost,sentimento,length(polaridadePostData),link,sep=" "),sep="\n");
-            mymatrix <- rbind(mymatrix,cbind(as.character(idPost),sentimento, length(polaridadePostData), as.character(link)))         
+            cat(paste(idPost,sentimento,length(polaridadePostData),sep=" "),sep="\n");
+            mymatrix <- rbind(mymatrix,cbind(as.character(idPost),sentimento, length(polaridadePostData)))         
          }
       }
       
       mymatrix <- data.frame(mymatrix)
-      colnames(mymatrix) <- c("id","sentimento","ncomentarios","links")
+      colnames(mymatrix) <- c("id","sentimento","ncomentarios")
       mymatrix$id <- unlist(mymatrix$id)
       mymatrix$sentimento <- as.numeric(unlist(mymatrix$sentimento))
       mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
-      mymatrix$links <- as.character(unlist(mymatrix$links))
-      
+
       subset1 <- mymatrix %>% arrange(sentimento, ncomentarios) %>% tail(1)
       subset2 <- mymatrix %>% arrange(sentimento, ncomentarios) %>% head(1)
       referencias <- c(subset1$id, subset2$id)
@@ -149,7 +146,7 @@ function(input, output) {
       plot(-14:14,axes=FALSE,xlab="",ylab="",type="n")
       gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
       text(x = 0, y=10,  labels = 1,pos = 4)
-      text(x = 0, y=-10, labels = -1,pos = 4)
+      text(x = -0.3, y=-10, labels = -1,pos = 4)
 
       posReferenciasSentimento <- c(which(mymatrix$id==unlist(referencias)[1]),
                                     which(mymatrix$id==unlist(referencias)[2])
@@ -157,21 +154,21 @@ function(input, output) {
       
       pos1 <- posReferenciasSentimento[1]
       pos2 <- posReferenciasSentimento[2]
-      link1 <- mymatrix$links[pos1]
-      link2 <- mymatrix$links[pos2]
+      link1 <- paste("https://pt-br.facebook.com/",mymatrix$id[pos1],sep="")
+      link2 <- paste("https://pt-br.facebook.com/",mymatrix$id[pos2],sep="")
       getScreenshot(link1, "post1")
       getScreenshot(link2, "post2")
 
-      ima <- readJPEG("~/figures_badogue/post2.jpg")   
+      ima <- readJPEG("./figures_badogue/post1.jpg")   
       isent <- mymatrix$sentimento[pos1]
-      rasterImage(ima, xleft = 7, ybottom=10*signif(isent,2)-4, xright = 13, ytop =10*signif(isent,2)+4)
+      rasterImage(ima, xleft = 7, ybottom=10*signif(isent,2)-3, xright = 20, ytop =10*signif(isent,2)+4)
       idpostsent <- mymatrix$id[pos1]
       text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
 #      text(x = 7*((is%%2)+1), y=10*signif(isent,2), labels = idpostsent,pos = 4)
       
-      ima2 <- readJPEG("~/figures_badogue/post1.jpg")   
+      ima2 <- readJPEG("./figures_badogue/post2.jpg")   
       isent2 <- mymatrix$sentimento[pos2]
-      rasterImage(ima2, xleft = 7, ybottom=10*signif(isent2,2)-4, xright = 13, ytop =10*signif(isent2,2)+4)
+      rasterImage(ima2, xleft = 7, ybottom=10*signif(isent2,2)-3, xright = 20, ytop =10*signif(isent2,2)+4)
       idpostsent2 <- mymatrix$id[pos2]
       text(x = 3, y=10*signif(isent2,2), labels = paste(intToUtf8(9664),signif(isent2,2)),pos = 4)
 #      text(x = 7*((is%%2)+1), y=10*signif(isent2,2), labels = idpostsent2,pos = 4)
