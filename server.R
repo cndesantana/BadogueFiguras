@@ -8,7 +8,6 @@ library(stringr)
 library(dplyr)
 library(wordcloud)
 library(scales)
-library(raster)
 library(jpeg)
 
 
@@ -20,7 +19,7 @@ getScreenshot <- function(link1, filename1){
       resolution <- "1366x768"
       
       outputfile1 <- file.path(workdir,filename1)
-      command1 = paste("pageres ", link1, " ", resolution, " --format='jpg' --verbose --sector='.contentArea' --filename=",outputfile1,sep="")
+      command1 = paste("pageres ", link1, " ", resolution, " --delay=2 --format='jpg' --verbose --sector='.contentArea' --filename=",outputfile1,sep="")
       if(length(system(paste("ls ",outputfile1),intern=TRUE))==0){
          system(command1)
       }else{
@@ -198,7 +197,7 @@ function(input, output) {
       mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
       
       mymatrix %>% 
-         select(id, sentimento, ncomentarios) %>% 
+         dplyr::select(id, sentimento, ncomentarios) %>% 
          group_by(id, sentimento, ncomentarios) %>% 
          arrange(sentimento, ncomentarios) %>%
          filter(ncomentarios > 100) %>%
@@ -262,7 +261,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       
       file %>% 
-         select(`Autor ID`, Polaridade, Comentários, Curtidas) %>%
+         dplyr::select(`Autor ID`, Polaridade, Comentários, Curtidas) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          #   filter(Polaridade == "Negativo") %>%
          arrange(`Autor ID`) %>%
@@ -290,7 +289,7 @@ function(input, output) {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       file %>% 
-         select(`Autor ID`, Curtidas, Polaridade) %>%
+         dplyr::select(`Autor ID`, Curtidas, Polaridade) %>%
          group_by(`Autor ID`) %>% 
          count(`Autor ID`, Curtidas, Polaridade) %>%
          arrange(n, `Autor ID`) %>%
@@ -310,7 +309,7 @@ function(input, output) {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       file %>% 
-         select(`Autor ID`, Polaridade) %>%
+         dplyr::select(`Autor ID`, Polaridade) %>%
          group_by(`Autor ID`) %>% 
          count(`Autor ID`, Polaridade) %>%
          arrange(n, `Autor ID`) %>%
@@ -330,7 +329,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
 
       file %>% 
-         select(`Autor ID`, Polaridade, Curtidas) %>%
+         dplyr::select(`Autor ID`, Polaridade, Curtidas) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          arrange(`Autor ID`, Polaridade, Curtidas) %>%
          filter(Polaridade == "Negativo", Curtidas > 0) %>%
@@ -355,7 +354,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       
       file %>% 
-         select(`Autor ID`, Polaridade) %>%
+         dplyr::select(`Autor ID`, Polaridade) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          arrange(`Autor ID`, Polaridade) %>%
          filter(Polaridade == "Negativo") %>%
@@ -381,7 +380,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       
       file %>% 
-         select(`Autor ID`, Polaridade, Curtidas) %>%
+         dplyr::select(`Autor ID`, Polaridade, Curtidas) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          arrange(`Autor ID`, Polaridade, Curtidas) %>%
          filter(Polaridade == "Positivo", Curtidas > 0) %>%
@@ -406,7 +405,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       
       file %>% 
-         select(`Autor ID`, Polaridade) %>%
+         dplyr::select(`Autor ID`, Polaridade) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          arrange(`Autor ID`, Polaridade) %>%
          filter(Polaridade == "Positivo") %>%
@@ -431,7 +430,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       
       autores <- file %>% 
-         select(`Autor ID`, Polaridade) %>%
+         dplyr::select(`Autor ID`, Polaridade) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          arrange(`Autor ID`, Polaridade) %>%
          filter(Polaridade == "Negativo") %>%
@@ -440,11 +439,11 @@ function(input, output) {
          arrange(total) %>%
          filter(total > 3) %>%
          tail(50) %>%
-         select(`Autor ID`)
+         dplyr::select(`Autor ID`)
       
       text <- file %>%
          filter(as.character(`Autor ID`) %in% autores$`Autor ID`, Polaridade == "Negativo") %>%
-         select(Conteúdo) %>%
+         dplyr::select(Conteúdo) %>%
          toupper()
       
       mydfm <- getDFMatrix(text);
@@ -465,7 +464,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       
       autores <- file %>% 
-         select(`Autor ID`, Polaridade) %>%
+         dplyr::select(`Autor ID`, Polaridade) %>%
          group_by(`Autor ID`, Polaridade) %>% 
          arrange(`Autor ID`, Polaridade) %>%
          filter(Polaridade == "Positivo") %>%
@@ -474,11 +473,11 @@ function(input, output) {
          arrange(total) %>%
          filter(total > 3) %>%
          tail(50) %>%
-         select(`Autor ID`)
+         dplyr::select(`Autor ID`)
       
       text <- file %>%
          filter(as.character(`Autor ID`) %in% autores$`Autor ID`, Polaridade == "Positivo") %>%
-         select(Conteúdo) %>%
+         dplyr::select(Conteúdo) %>%
          toupper()
       
       mydfm <- getDFMatrix(text);
@@ -534,7 +533,7 @@ function(input, output) {
       file <- read_xlsx(filepath)
       file$Genero[which(is.na(file$Genero))] <- "Não declarado"
       file %>% 
-         select(Genero, Polaridade) %>%
+         dplyr::select(Genero, Polaridade) %>%
          group_by(Genero) %>% 
          count(Genero, Polaridade) %>%
          arrange(n, Genero) %>%
