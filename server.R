@@ -134,6 +134,7 @@ function(input, output) {
       
       mymatrix <- data.frame(mymatrix)
       colnames(mymatrix) <- c("id","sentimento","ncomentarios")
+      mymatrix <- mymatrix %>% filter(sentimento < 1 & sentimento > -1)
       mymatrix$id <- unlist(mymatrix$id)
       mymatrix$sentimento <- as.numeric(unlist(mymatrix$sentimento))
       mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
@@ -195,6 +196,7 @@ function(input, output) {
       mymatrix$id <- unlist(mymatrix$id)
       mymatrix$sentimento <- as.numeric(unlist(mymatrix$sentimento))
       mymatrix$ncomentarios <- as.numeric(unlist(mymatrix$ncomentarios))
+      mymatrix <- mymatrix %>% filter(sentimento < 1 & sentimento > -1)
       
       mymatrix %>% 
          dplyr::select(id, sentimento, ncomentarios) %>% 
@@ -206,7 +208,7 @@ function(input, output) {
          geom_bar(stat="identity", aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento))) + 
          scale_fill_manual("red") +
          xlab("") + ylab("Sentimento dos Posts") + 
-         geom_text( aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento), label = signif(as.numeric(sentimento),2) ) , vjust = 0, hjust = 0, size = 3 ) +
+         geom_text( aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento), label = signif(as.numeric(sentimento),2) ) , vjust = 0, hjust = ifelse(as.numeric(sentimento) > 0,0,1), size = 3 ) +
          coord_flip()
       
    }
@@ -249,10 +251,11 @@ function(input, output) {
       }
       colnames(mymatrix) <- c("Data","id","sentimento")
       mymatrix <- as.data.frame(mymatrix)
+      mymatrix <- mymatrix %>% filter(sentimento < 1 & sentimento > -1)
       ggplot(mymatrix, aes(x=ymd(Data),y=as.numeric(sentimento))) + geom_point(stat="identity") + 
          stat_smooth(method="loess", span=0.1, se=TRUE, aes(Sombra="Desvio"), alpha=0.3) +
          theme_bw() +
-         xlab("Data") + ylab("Sentimento dos Posts")
+         xlab("Data") + ylab("Sentimento dos Posts") + ylim(-1,1)
    }
    
    
@@ -283,8 +286,6 @@ function(input, output) {
 
    }
    
-   
-
    plotComentaristasPopulares = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
