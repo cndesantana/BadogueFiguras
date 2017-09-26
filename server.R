@@ -11,7 +11,7 @@ library(scales)
 library(jpeg)
 
 
-badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor")
+badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor","conteúdo","perfil","Rui","Costa")
 
 getScreenshot <- function(link1, filename1){
    workdir <- "figures_badogue"
