@@ -11,7 +11,7 @@ library(scales)
 library(jpeg)
 
 
-badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor","conteúdo","perfil","Rui","Costa")
+badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor","comentário","perfil","Rui","Costa")
 
 getScreenshot <- function(link1, filename1){
    workdir <- "figures_badogue"
@@ -206,7 +206,7 @@ function(input, output) {
          tail(60) %>%
          ggplot() + 
          geom_bar(stat="identity", aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento))) + 
-         scale_fill_manual("red") +
+         scale_fill_manual(ggplotColours(n=3)[1]) +
          xlab("") + ylab("Sentimento dos Posts") + 
          geom_text( aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento), label = signif(as.numeric(sentimento),2) ) , vjust = 0, hjust = ifelse(as.numeric(sentimento) > 0,0,1), size = 3 ) +
          coord_flip()
@@ -575,7 +575,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = "red") + 
+                  fill = ggplotColours(n=3)[1]) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -591,7 +591,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = "green") + 
+                  fill = ggplotColours(n=3)[2]) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -607,7 +607,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = "green") + 
+                  fill = ggplotColours(n=3)[3]) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
