@@ -92,7 +92,12 @@ getPositionY <- function(test){
    return(as.numeric(labelpos))
 }
 
-
+removeUsersOutliers <- function(file,percent){
+   ncommentoutliers <- as.numeric(quantile(as.numeric(table(file$`Autor ID`)),percent))
+   usersoutliers <- names(table(file$`Autor ID`)[which(as.numeric(table(file$`Autor ID`)) > ncommentoutliers)]);
+   file <- file %>% filter(!(`Autor ID` %in% usersoutliers))
+   return(file)
+}
 
 getDFMatrix <- function(text){
    myCorpus <- corpus(text)
@@ -216,9 +221,11 @@ function(input, output) {
    plotIndiceSentimentos = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
+      
+      file <- removeUsersOutliers(file,0.95);#remove outliers (90% quantile)
       allpolaridade <- toupper(file$Polaridade)
       isent <- getIndiceDeSentimento(allpolaridade);
-      
+
       plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
       gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
       text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
