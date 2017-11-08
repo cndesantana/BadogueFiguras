@@ -329,7 +329,7 @@ function(input, output) {
                   aes(x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), fill = Polaridade)) + 
          ylab("Numero de comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -354,7 +354,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Curtidas") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -379,7 +379,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -405,7 +405,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Curtidas") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -430,7 +430,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -495,7 +495,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[2]) + 
+                  fill = ggplotColours(n=3)[3]) + 
          ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -600,7 +600,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[2]) + 
+                  fill = ggplotColours(n=3)[3]) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -616,7 +616,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[3]) + 
+                  fill = ggplotColours(n=3)[2]) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -670,12 +670,12 @@ function(input, output) {
      if(dim(mydfm)[1] <= 500){
         textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
      }
      else{
         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
      }
      
   }
@@ -689,12 +689,12 @@ function(input, output) {
      if(dim(mydfm)[1] <= 500){
         textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
      }
      else{
         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
      }
      
   }
