@@ -9,9 +9,10 @@ library(dplyr)
 library(wordcloud)
 library(scales)
 library(jpeg)
+library(qdapRegex)
 
+badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem")
 
-badwords <- c("scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","governador","rui","costa","senhor","comentário","perfil","Rui","Costa")
 
 getScreenshot <- function(link1, filename1){
    workdir <- "figures_badogue"
@@ -33,6 +34,7 @@ fa <- function(x) iconv(x, to = "ASCII//TRANSLIT")
 getMatrizDeOcorrencias <- function(text){
    text <- stringi::stri_trans_tolower(text)
    temp <- fa(text)
+   temp <- rm_nchar_words(temp, "1")
    # Lowercase
    # Shrink down to just one white space
    temp <- stringr::str_replace_all(temp,"[\\s]+", " ")
@@ -517,8 +519,8 @@ function(input, output) {
          group_by(Data) %>%
          mutate(freq = count / sum(count))
       
-      primeirodia <- min(df_datas$Data);
-      ultimodia <- max(df_datas$Data)
+      primeirodia <- min(dmy(df_datas$Data));
+      ultimodia <- max(dmy(df_datas$Data))
       ggplot(df_datas, aes(x=dmy(Data), y=freq, fill=Polaridade)) +
          geom_bar(position = "stack", stat = "identity") +
          scale_x_date(date_breaks = "1 day",
@@ -528,8 +530,8 @@ function(input, output) {
          labs (title = "") +
          labs (x = "", y = "Porcentagem de Posts") +
          theme(text = element_text(size=6), axis.text.x = element_text(angle=45, hjust=1)) +
-         scale_fill_discrete(name="Sentimento") +
-         coord_cartesian(xlim = c(dmy(primeirodia), dmy(ultimodia))) +
+#         scale_fill_discrete(name="Sentimento") +
+         coord_cartesian(xlim = c(primeirodia, ultimodia)) +
          scale_fill_manual("Sentimentos", values = c("POSITIVO" = ggplotColours(n=4)[2], "NEGATIVO" = ggplotColours(n=4)[1], "NEUTRO" = ggplotColours(n=4)[3], "GOVERNO" = ggplotColours(n=4)[4])) +
          geom_text(size = 2, col = "white", aes(x = dmy(Data), y = getPositionY(df_datas), label = paste(as.character(100*round(df_datas$freq,2)),"%",sep="")));
       
@@ -715,7 +717,7 @@ function(input, output) {
      },
      content = function(file) {
         device <- function(..., width, height) {
-           grDevices::png(..., width = width, height = height,
+           grDevices::png(..., width = 16, height = 9,
                           res = 300, units = "in")
         }
         ggsave(file, plot = plotVariabilidade(), device = device)
@@ -856,7 +858,7 @@ function(input, output) {
      },
      content = function(file) {
         device <- function(..., width, height) {
-           grDevices::png(..., width = width, height = height,
+           grDevices::png(..., width = 16, height = 9,
                           res = 300, units = "in")
         }
         ggsave(file, plot = plotSerieTemporal(), device = device)
