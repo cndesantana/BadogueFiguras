@@ -532,7 +532,7 @@ function(input, output) {
          theme(text = element_text(size=6), axis.text.x = element_text(angle=45, hjust=1)) +
 #         scale_fill_discrete(name="Sentimento") +
          coord_cartesian(xlim = c(primeirodia, ultimodia)) +
-         scale_fill_manual("Sentimentos", values = c("POSITIVO" = ggplotColours(n=4)[2], "NEGATIVO" = ggplotColours(n=4)[1], "NEUTRO" = ggplotColours(n=4)[3], "GOVERNO" = ggplotColours(n=4)[4])) +
+         scale_fill_manual("Sentimentos", values = c("POSITIVO" = ggplotColours(n=4)[3], "NEGATIVO" = ggplotColours(n=4)[1], "NEUTRO" = ggplotColours(n=4)[2], "GOVERNO" = ggplotColours(n=4)[4])) +
          geom_text(size = 2, col = "white", aes(x = dmy(Data), y = getPositionY(df_datas), label = paste(as.character(100*round(df_datas$freq,2)),"%",sep="")));
       
    }
@@ -554,7 +554,7 @@ function(input, output) {
          ) + 
          ylab("Numero de comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
