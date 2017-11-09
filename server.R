@@ -550,11 +550,11 @@ function(input, output) {
          tail(50) %>% 
          ggplot() + 
          geom_bar(stat = "identity", 
-                  aes(x = Genero, y = as.numeric(n), fill = Polaridade)
+                  aes(x = Genero, y = as.numeric(n), fill = toupper(Polaridade))
          ) + 
          ylab("Numero de comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("POSITIVO" = ggplotColours(n=3)[3], "NEGATIVO" = ggplotColours(n=3)[1], "NEUTRO" = ggplotColours(n=3)[2])) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
