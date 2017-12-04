@@ -10,7 +10,13 @@ library(wordcloud)
 library(scales)
 library(jpeg)
 library(qdapRegex)
+library(grDevices)
+library(plotrix)
+library(grDevices)
 
+corpositivo <- "#20B2AA";
+cornegativo <- "#c00000";
+corneutro <- "#FFA500";
 badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem")
 
 
@@ -213,7 +219,7 @@ function(input, output) {
          tail(60) %>%
          ggplot() + 
          geom_bar(stat="identity", aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento))) + 
-         scale_fill_manual(ggplotColours(n=3)[1]) +
+         scale_fill_manual(cornegativo) +
          xlab("") + ylab("Sentimento dos Posts") + 
          geom_text( aes(x=reorder(as.character(id),as.numeric(sentimento)),y=as.numeric(sentimento), label = signif(as.numeric(sentimento),2) ) , vjust = 0, hjust = ifelse(as.numeric(sentimento) > 0,0,1), size = 3 ) +
          coord_flip()
@@ -224,15 +230,22 @@ function(input, output) {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       
-      file <- removeUsersOutliers(file,0.95);#remove outliers (90% quantile)
+#      file <- removeUsersOutliers(file,0.95);#remove outliers (95% quantile)
       allpolaridade <- toupper(file$Polaridade)
       isent <- getIndiceDeSentimento(allpolaridade);
 
-      plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
-      gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
-      text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
-      text(x = 0, y=10,  labels = 1,pos = 4)
-      text(x = 0, y=-10, labels = -1,pos = 4)
+      colfunc <- colorRampPalette(c(corpositivo, corneutro, cornegativo))
+      legend_image <- as.raster(matrix(colfunc(20), ncol=1))
+      plot(c(1,20),c(-10,10),type = 'n', axes = F,xlab = '', ylab = '', main = '')
+      text(x=3, y = 10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos=4)
+      text(x = 0.45, y=10,  labels = 1,pos = 4)
+      text(x = 0.4, y=-10, labels = -1,pos = 4)
+      rasterImage(legend_image, 1,-10,3,10)
+#      plot(-10:10,axes=FALSE,xlab="",ylab="",type="n")
+#      gradient.rect(1,-10,3,10,reds=c(1,0), greens=c(seq(0,1,length=10),seq(1,0,length=10)),blues=c(0,1),gradient="y")
+#      text(x = 3, y=10*signif(isent,2), labels = paste(intToUtf8(9664),signif(isent,2)),pos = 4)
+#      text(x = 0, y=10,  labels = 1,pos = 4)
+#      text(x = 0, y=-10, labels = -1,pos = 4)
       
       #    qplot(speed, dist, data = cars)
    }
@@ -310,7 +323,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Curtidas em Comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[2], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[3])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -329,7 +342,7 @@ function(input, output) {
                   aes(x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), fill = Polaridade)) + 
          ylab("Numero de comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -354,7 +367,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Curtidas") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -379,7 +392,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -405,7 +418,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Curtidas") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -430,7 +443,7 @@ function(input, output) {
          ) + 
          ylab("Numero de Comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("Positivo" = ggplotColours(n=3)[3], "Negativo" = ggplotColours(n=3)[1], "Neutro" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -461,7 +474,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[1]) + 
+                  fill = cornegativo) + 
          ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -495,7 +508,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[3]) + 
+                  fill = corpositivo) + 
          ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -532,7 +545,8 @@ function(input, output) {
          theme(text = element_text(size=6), axis.text.x = element_text(angle=45, hjust=1)) +
 #         scale_fill_discrete(name="Sentimento") +
          coord_cartesian(xlim = c(primeirodia, ultimodia)) +
-         scale_fill_manual("Sentimentos", values = c("POSITIVO" = ggplotColours(n=4)[3], "NEGATIVO" = ggplotColours(n=4)[1], "NEUTRO" = ggplotColours(n=4)[2], "GOVERNO" = ggplotColours(n=4)[4])) +
+         scale_fill_manual("Sentimentos", values = c("POSITIVO" = corpositivo, "NEGATIVO" = cornegativo, "NEUTRO" = corneutro, "GOVERNO" = ggplotColours(n=4)[4])) +
+#         scale_fill_manual("Sentimentos", values = c("POSITIVO" = ggplotColours(n=4)[3], "NEGATIVO" = ggplotColours(n=4)[1], "NEUTRO" = ggplotColours(n=4)[2], "GOVERNO" = ggplotColours(n=4)[4])) +
          geom_text(size = 2, col = "white", aes(x = dmy(Data), y = getPositionY(df_datas), label = paste(as.character(100*round(df_datas$freq,2)),"%",sep="")));
       
    }
@@ -554,7 +568,7 @@ function(input, output) {
          ) + 
          ylab("Numero de comentários") +
          xlab("") +
-         scale_fill_manual("Polaridade", values = c("POSITIVO" = ggplotColours(n=3)[3], "NEGATIVO" = ggplotColours(n=3)[1], "NEUTRO" = ggplotColours(n=3)[2])) +
+         scale_fill_manual("Polaridade", values = c("POSITIVO" = corpositivo, "NEGATIVO" = cornegativo, "NEUTRO" = corneutro)) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
@@ -584,7 +598,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[1]) + 
+                  fill = cornegativo) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -600,7 +614,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[3]) + 
+                  fill = corpositivo) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -616,7 +630,7 @@ function(input, output) {
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = ggplotColours(n=3)[2]) + 
+                  fill = corneutro) + 
          ylab("Numero de ocorrencias") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -705,7 +719,7 @@ function(input, output) {
     filename = 'indicesentimentos.png',
     content = function(file) {
       device <- function(..., width, height) {
-        grDevices::png(..., width = width, height = height,
+        grDevices::png(..., width = 16, height = 9,
                        res = 300, units = "in")
       }
       ggsave(file, plot = plotIndiceSentimentos(), device = device)
