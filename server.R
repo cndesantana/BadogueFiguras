@@ -11,13 +11,11 @@ library(scales)
 library(jpeg)
 library(qdapRegex)
 library(grDevices)
-library(plotrix)
-library(grDevices)
 
 corpositivo <- "#20B2AA";
 cornegativo <- "#c00000";
 corneutro <- "#FFA500";
-badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem")
+badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem","vçpt","vç","x")
 
 
 getScreenshot <- function(link1, filename1){
@@ -321,7 +319,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), fill = Polaridade)
          ) + 
-         ylab("Numero de Curtidas em Comentários") +
+         ylab("Número de Curtidas em Comentários") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -340,7 +338,7 @@ function(input, output) {
          ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), fill = Polaridade)) + 
-         ylab("Numero de comentários") +
+         ylab("Número de comentários") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -365,7 +363,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
          ) + 
-         ylab("Numero de Curtidas") +
+         ylab("Número de Curtidas") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -390,7 +388,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
          ) + 
-         ylab("Numero de Comentários") +
+         ylab("Número de Comentários") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -416,7 +414,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
          ) + 
-         ylab("Numero de Curtidas") +
+         ylab("Número de Curtidas") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -441,7 +439,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), fill = Polaridade)
          ) + 
-         ylab("Numero de Comentários") +
+         ylab("Número de Comentários") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("Positivo" = corpositivo, "Negativo" = cornegativo, "Neutro" = corneutro)) +
          geom_text( aes (x = reorder(`Autor ID`,as.numeric(total)), y = as.numeric(total), label = as.numeric(total) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -566,7 +564,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = Genero, y = as.numeric(n), fill = toupper(Polaridade))
          ) + 
-         ylab("Numero de comentários") +
+         ylab("Número de comentários") +
          xlab("") +
          scale_fill_manual("Polaridade", values = c("POSITIVO" = corpositivo, "NEGATIVO" = cornegativo, "NEUTRO" = corneutro)) +
          #   geom_text( aes (x = reorder(`Autor ID`,as.numeric(n)), y = as.numeric(n), label = as.numeric(n) ) , vjust = 0, hjust = 0, size = 2 ) + 
@@ -583,7 +581,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
                   fill = "magenta") + 
-         ylab("Numero de ocorrencias") +
+         ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
@@ -599,7 +597,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
                   fill = cornegativo) + 
-         ylab("Numero de ocorrencias") +
+         ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
@@ -615,7 +613,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
                   fill = corpositivo) + 
-         ylab("Numero de ocorrencias") +
+         ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
@@ -631,7 +629,7 @@ function(input, output) {
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
                   fill = corneutro) + 
-         ylab("Numero de ocorrencias") +
+         ylab("Número de ocorrências") +
          xlab("") +
          geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
@@ -646,12 +644,12 @@ function(input, output) {
       if(dim(mydfm)[1] <= 500){
          textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                             rot.per = .25, 
-                            colors = RColorBrewer::brewer.pal(9,"Dark2")[5:9])        
+                            colors = RColorBrewer::brewer.pal(9,"Dark2")[4:8])        
       }
       else{
          textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
                             rot.per = .25, 
-                            colors = RColorBrewer::brewer.pal(9,"Dark2")[5:9])        
+                            colors = RColorBrewer::brewer.pal(9,"Dark2")[4:8])        
       }
       
    }
@@ -665,12 +663,12 @@ function(input, output) {
      if(dim(mydfm)[1] <= 500){
         textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Reds")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Reds")[4:8])        
      }
      else{
         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Reds")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Reds")[4.8])        
      }
      
   }
@@ -684,12 +682,12 @@ function(input, output) {
      if(dim(mydfm)[1] <= 500){
         textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])        
      }
      else{
         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Blues")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])        
      }
      
   }
@@ -703,12 +701,12 @@ function(input, output) {
      if(dim(mydfm)[1] <= 500){
         textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
      }
      else{
         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
                            rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Greens")[5:9])        
+                           colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
      }
      
   }
