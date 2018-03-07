@@ -18,6 +18,140 @@ corneutro <- "#FFA500";
 badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem","vçpt","vç","x","vc", "aqui", "você", "tá", "dia", "amanhã", "ba","aqui")
 
 
+cleaningRelNI1Temas <- function(relNI){
+
+	   relNI$Temas <- toupper(relNI$Temas)
+   relNI$Temas <- str_replace_all(relNI$Temas, "DITRIBUIÇÃO DE ÁGUA","DISTRIBUIÇÃO DE ÁGUA")
+      
+      relNI$Temas <- str_replace_all(relNI$Temas, "\'","\"")
+      relNI$Temas <- str_replace_all(relNI$Temas, "\\] \\[",",")
+         relNI$Temas <- str_replace_all(relNI$Temas, "\\]  \\[",",")
+         relNI$Temas <- str_replace_all(relNI$Temas, " , ",",")
+	    relNI$Temas <- str_replace_all(relNI$Temas, ", ",",")
+	    
+	    relNI$Temas <- str_replace_all(relNI$Temas, "\"]","")
+	       relNI$Temas <- str_replace_all(relNI$Temas, "\"] ","")
+	          relNI$Temas <- str_replace_all(relNI$Temas, " \"]","")
+		     relNI$Temas <- str_replace_all(relNI$Temas, " \"] ","")
+		        relNI$Temas <- str_replace_all(relNI$Temas, "\" ]","")
+			   relNI$Temas <- str_replace_all(relNI$Temas, "\" ] ","")
+			      relNI$Temas <- str_replace_all(relNI$Temas, " \" ]","")
+			         relNI$Temas <- str_replace_all(relNI$Temas, " \" ] ","")
+				    relNI$Temas <- str_replace_all(relNI$Temas, "\\]","")
+				       relNI$Temas <- str_replace_all(relNI$Temas, "\\] ","")
+				          relNI$Temas <- str_replace_all(relNI$Temas, " \\]","")
+					     relNI$Temas <- str_replace_all(relNI$Temas, " \\] ","")
+					        
+					        
+					        
+					        relNI$Temas <- str_replace_all(relNI$Temas, " \"\\[ ","")
+						   relNI$Temas <- str_replace_all(relNI$Temas, " \"\\[","")
+						      relNI$Temas <- str_replace_all(relNI$Temas, "\"\\[ ","")
+						         relNI$Temas <- str_replace_all(relNI$Temas, "\"\\[","")
+							    relNI$Temas <- str_replace_all(relNI$Temas, "\" \\[ ","")
+							       relNI$Temas <- str_replace_all(relNI$Temas, "\" \\[","")
+							          relNI$Temas <- str_replace_all(relNI$Temas, " \" \\[ ","")
+								     relNI$Temas <- str_replace_all(relNI$Temas, " \" \\[","")
+								        relNI$Temas <- str_replace_all(relNI$Temas, "\\[ ","")
+									   relNI$Temas <- str_replace_all(relNI$Temas, "\\[","")
+									      relNI$Temas <- str_replace_all(relNI$Temas, " \\[ ","")
+									         relNI$Temas <- str_replace_all(relNI$Temas, " \\[","")
+										    
+										    
+										    relNI$Temas <- str_replace_all(relNI$Temas, "[\\[\\]]","")
+										       
+										       
+										       relNI$Temas <- str_replace_all(relNI$Temas, "\",",",")
+										       relNI$Temas <- str_replace_all(relNI$Temas, " \",",",")
+										          relNI$Temas <- str_replace_all(relNI$Temas, "\" ,",",")
+										          relNI$Temas <- str_replace_all(relNI$Temas, " \" ,",",")
+											     
+											     relNI$Temas <- str_replace_all(relNI$Temas, "\"","")
+											     relNI$Temas <- str_replace_all(relNI$Temas, " \"","")
+											        relNI$Temas <- str_replace_all(relNI$Temas, "\" ","")
+											        relNI$Temas <- str_replace_all(relNI$Temas, " \" ","")
+												   relNI$Temas <- str_replace_all(relNI$Temas, "\" ","\"")
+												   
+												   
+												   
+												   
+												   relNI <- relNI %>%
+													         mutate(Temas = strsplit(as.character(Temas), ", ")) %>% 
+														       unnest(Temas) 
+													          relNI <- relNI %>%
+															        mutate(Temas = strsplit(as.character(Temas), ",")) %>% 
+																      unnest(Temas)
+															         
+															         relNI$Temas <- str_replace_all(relNI$Temas, "SAÚDE ","SAÚDE")
+																    relNI$Temas <- str_replace_all(relNI$Temas, "SEGURANÇA ","SEGURANÇA")
+																    relNI$Temas <- str_replace_all(relNI$Temas, "OBRAS DA INFRAESTRUTURA ","OBRAS DA INFRAESTRUTURA")
+																       relNI$Temas <- str_replace_all(relNI$Temas, "INCENTIVO AO ESPORTE E LAZER ","INCENTIVO AO ESPORTE E LAZER")
+																       relNI$Temas <- str_replace_all(relNI$Temas, "TRANSPORTE PÚBLICO/MOBILIDADE ","TRANSPORTE PÚBLICO/MOBILIDADE")
+																          relNI$Temas <- str_replace_all(relNI$Temas, "HABITAÇÃO/MORADIA ","HABITAÇÃO/MORADIA")
+																          relNI$Temas <- str_replace_all(relNI$Temas, "GERAÇÃO DE EMPREGOS ","GERAÇÃO DE EMPREGO")
+																	     relNI$Temas <- str_replace_all(relNI$Temas, "GERAÇÃO DE EMPREGO E RENDA ","GERAÇÃO DE EMPREGO")
+																	     relNI$Temas <- str_replace_all(relNI$Temas, "GERAÇÃO DE EMPREGO E RENDA","GERAÇÃO DE EMPREGO")
+																	        relNI$Temas <- str_replace_all(relNI$Temas, "GERAÇÃO DE EMPREGOS","GERAÇÃO DE EMPREGO")
+																	        relNI$Temas <- str_replace_all(relNI$Temas, "APOIO À AGRICULTURA ","APOIO À AGRICULTURA")
+																		   
+																		   relNI$Temas <- str_replace_all(relNI$Temas, "APOIO À CULTURA ","APOIO À CULTURA")
+																		   relNI$Temas <- str_replace_all(relNI$Temas, "APOIO AO TURISMO ","APOIO AO TURISMO")
+																		      relNI$Temas <- str_replace_all(relNI$Temas, "DISTRIBUIÇÃO DE ÁGUA ","DISTRIBUIÇÃO DE ÁGUA")
+																		      relNI$Temas <- str_replace_all(relNI$Temas, "ESTRADAS E RODOVIAS ","ESTRADAS E RODOVIAS")
+																		         relNI <- relNI %>% filter(!is.na(Temas))
+																		         return(relNI)
+}
+
+cleaningRelNI1Grupos <- function(relNI1){
+	   relNI1$Grupos <- str_replace_all(relNI1$Grupos, " \"","")
+   relNI1$Grupos <- str_replace_all(relNI1$Grupos, "\"]","")
+      relNI1$Grupos <- str_replace_all(relNI1$Grupos, "\\[","")
+         relNI1$Grupos <- str_replace_all(relNI1$Grupos, "\" ,",",")
+	    relNI1$Grupos <- str_replace_all(relNI1$Grupos, "Região 2 - Re","Região 4 - Re")
+	    
+	    relNI1 <-  relNI1 %>%
+		          mutate(Grupos = strsplit(as.character(Grupos), ", ")) %>% 
+			        unnest(Grupos)
+			   relNI1 <-  relNI1 %>%
+				         mutate(Grupos = strsplit(as.character(Grupos), ",")) %>% 
+					       unnest(Grupos)
+				          
+				          relNI1 <- relNI1 %>% 
+						        mutate(Grupos = stringr::str_replace_all(Grupos, "[\\[\\]]","")) %>% 
+							      mutate(Grupos = strsplit(as.character(Grupos), ",")) %>% 
+							            unnest(Grupos) %>% 
+								          filter(Grupos != "CPBA_3629944") %>%
+									        filter(Grupos != "Rui Correria_9356576")  %>%
+										      filter(Grupos != "Neutro")%>%
+										            filter(Grupos != "Carnaval_974981")%>%
+											          filter(Grupos != "Carnaval") %>%
+												        filter(Grupos != "Notícias Carnaval") %>%
+													      filter(Grupos != "Rui Correria") %>%
+													            filter(Grupos != "teste_6503868") %>%
+														          filter(Grupos != "TESTE Região 11 Caetité")
+														     
+														     return(relNI1)
+}
+
+cleaningRelNI1Data <- function(relNI1){
+
+	   ################### CLEANING GRUPOS
+	   relNI1 <- cleaningRelNI1Grupos(relNI1)
+      
+   ################### CLEANING 'TEMAS'
+   
+   relNI1 <- cleaningRelNI1Temas(relNI1)
+      
+      relNI1$Temas <- str_replace_all(relNI1$Temas, '_.*', '')
+      relNI1$Grupos <- str_replace_all(relNI1$Grupos, '_.*', '')
+         
+         return(relNI1)
+}
+
+
+
+
+
 getScreenshot <- function(link1, filename1){
    workdir <- "figures_badogue"
    if(file.exists(workdir)){
@@ -548,8 +682,108 @@ function(input, output) {
          geom_text(size = 2, col = "white", aes(x = dmy(Data), y = getPositionY(df_datas), label = paste(as.character(100*round(df_datas$freq,2)),"%",sep="")));
       
    }
-   
-   
+
+   plotDifPreditores = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      file <- cleaningRelNI1Data(file)
+
+      file <- file %>% 
+	      group_by(Polaridade, Grupos, Temas) %>%
+              summarise(npositivo = length(which(Polaridade == "Positivo")),
+	                nnegativo = length(which(Polaridade == "Negativo")),
+			nneutro = length(which(Polaridade == "Neutro")),
+			is = ifelse(((npositivo + nnegativo)==0),0,ifelse((nnegativo + npositivo > 2),(npositivo - nnegativo) / (npositivo + nnegativo), 0)))%>%
+            ungroup()%>%
+            select(Grupos, Temas, npositivo, nnegativo, is)
+
+
+    positivos <- file %>%
+	       group_by(Grupos, Temas) %>% 
+	          summarise(Comentarios = sum(npositivo)) %>%
+		     arrange(Temas)
+
+	     negativos <- file %>% 
+		        group_by(Grupos, Temas) %>% 
+			   summarise(Comentarios = sum(nnegativo)) %>%
+			      arrange(Temas)
+
+		      names(positivos) <- c("Grupos","Temas","Comentarios")
+		      names(negativos) <- c("Grupos","Temas","Comentarios")
+
+		      todos <- positivos
+		      names(todos) <- c("Grupos","Temas","Diferenca")
+		      todos$Diferenca <- positivos$Comentarios - negativos$Comentarios
+		      todos <- todos %>% mutate(Soma = positivos$Comentarios + negativos$Comentarios)
+		      todos <- todos %>% mutate(Sentimento = ifelse(Diferenca > 0, "Positivo","Negativo"))
+		      todos <- todos %>% mutate(Porcentagem = ifelse(Soma == 0, 0, ifelse(Sentimento == "Positivo", signif(abs(Diferenca)/Soma,2)*100, signif(abs(Diferenca)/Soma,2)*-100))) %>% filter(Soma != 0)
+
+		      todos  %>% 
+			         ggplot(aes(x = reorder(Temas, Porcentagem), y = Porcentagem, fill=Sentimento)) + 
+				    ylim(-105,105) +
+				       scale_fill_manual("Sentimento", values = c("Positivo" = corpositivo, "Negativo" = cornegativo))+
+				          geom_text( aes(x=reorder(Temas, Porcentagem), y=Porcentagem, label = paste(Porcentagem,"%",sep="")), vjust = 0, hjust = ifelse(as.numeric(todos$Porcentagem) >= 0,0,1), size = 3 ) +
+					     geom_bar(stat="identity") + 
+					        ylab("Diferença entre Comentários Positivos e Negativos (%)") + xlab("Temas") + 
+						   coord_flip() + 
+						      facet_grid(. ~ paste(month,Grupos,sep=" - "))
+
+
+   }
+ 
+
+   plotPreditores = function() {
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+
+      file <- cleaningRelNI1Data(file)
+
+      file <- file %>% 
+	      group_by(Polaridade, Grupos, Temas) %>%
+              summarise(npositivo = length(which(Polaridade == "Positivo")),
+	                nnegativo = length(which(Polaridade == "Negativo")),
+			nneutro = length(which(Polaridade == "Neutro")),
+			is = ifelse(((npositivo + nnegativo)==0),0,ifelse((nnegativo + npositivo > 2),(npositivo - nnegativo) / (npositivo + nnegativo), 0)))%>%
+            ungroup()%>%
+            select(Grupos, Temas, npositivo, nnegativo, is)
+
+    positivos <- file  %>% 
+	       filter(npositivo > 0)%>%
+	          select(Grupos, Temas, npositivo)
+
+	  negativos <- file %>% 
+		     select(Grupos, Temas, nnegativo) %>%
+		        filter(nnegativo > 0) %>% 
+			   mutate(nnegativo = nnegativo * (-1)) %>%
+			      select(Grupos, Temas, nnegativo)
+
+		      names(positivos) <- c("Grupos","Temas","Comentarios")
+		      names(negativos) <- c("Grupos","Temas","Comentarios")
+		      todos <- rbind(positivos,negativos)
+		      todos <- todos %>% mutate(Sentimento = ifelse(Comentarios > 0, "Positivo","Negativo"))
+
+		      todos <- todos %>% 
+			         group_by(Temas, Sentimento) %>% 
+				    summarise(count = sum(abs(Comentarios))) %>%
+				       group_by(Temas) %>%
+				          mutate(Porcentagem = 100*count / sum(count) ) %>%
+					     arrange(Temas)
+
+				     grupos_ <- as.character(file$Grupos[1])
+				     todos %>%
+					        ggplot(aes(x = Temas, y = Porcentagem, fill=Sentimento)) + 
+						   geom_bar(stat="identity") +          
+						      scale_fill_manual("Sentimento", values = c("Positivo" = corpositivo, "Negativo" = cornegativo))+
+						         geom_text(size = 3, col = "white", aes(x = Temas, y = if_else(Sentimento == "Negativo", 10, 90), label = paste(as.character(round(Porcentagem,2)),"%",sep=""), hjust = 0)) +
+							    ylab("% de Comentários") + xlab("Temas") + 
+							       coord_flip() + 
+							          facet_grid(. ~ paste(month,grupos_,sep=" - "))
+
+
+   }
+ 
+
+
    plotGenero = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
@@ -864,6 +1098,35 @@ function(input, output) {
      }     
   )
   
+  output$preditores = downloadHandler(
+     filename = function() {
+        paste("preditores.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotPreditores(), device = device)
+        
+     }     
+  )
+
+  output$difpreditores = downloadHandler(
+     filename = function() {
+        paste("difpreditores.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotDifPreditores(), device = device)
+        
+     }     
+  )
+
+
   output$serietemporal = downloadHandler(
      filename = function() {
         paste("serietemporal.png", sep = "")
