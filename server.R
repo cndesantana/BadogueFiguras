@@ -779,10 +779,10 @@ function(input, output) {
 	     arrange(Temas)
 
 		todos %>%
-		   ggplot(aes(x = Temas, y = Porcentagem, fill=Sentimento)) + 
+		   ggplot(aes(x = reorder(Temas, Porcentagem), y = Porcentagem, fill=Sentimento)) + 
 		   geom_bar(stat="identity") + 
 		   scale_fill_manual("Sentimento", values = c("Positivo" = corpositivo, "Negativo" = cornegativo))+
-		   geom_text(size = 3, col = "white", aes(x = Temas, y = if_else(todos$Sentimento == "Negativo", 10, 90), label = paste(as.character(round(todos$Porcentagem,2)),"%",sep=""), hjust = 0)) +
+		   geom_text(size = 3, col = "white", aes(x = reorder(Temas, Porcentagem), y = if_else(todos$Sentimento == "Negativo", 10, 90), label = paste(as.character(round(Porcentagem,2)),"%",sep=""), hjust = 0)) +
 		   ylab("% de Comentários") + xlab("Temas") + 
 			coord_flip()
    }
