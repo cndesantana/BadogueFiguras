@@ -28,7 +28,7 @@ fluidPage(
    downloadButton('serietemporal',"Download série temporal de sentimentos"),
    downloadButton('plotpostsporsentimento',"Download lista de posts por ordem de IS"),
    downloadButton('genero',"Download polaridade de comentários por gênero"),
-#   downloadButton('curtidascomentarios',"Download usuários por número de curtidas e comentários"),
+   downloadButton('curtidascomentarios',"Download usuários por número de curtidas e comentários"),
 #   tags$hr("Preditores",br()),
 #   downloadButton('preditores',"Download Polarizacao relativa de Preditores"),   
 #   downloadButton('difpreditores',"Download Polarizacao absoluta de Preditores"),   
