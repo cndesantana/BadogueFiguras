@@ -229,15 +229,16 @@ removeUsersOutliers <- function(file,percent){
 }
 
 getDFMatrix <- function(text){
-   text <- rm_nchar_words(text, "2")
-   text <- rm_nchar_words(text, "1")
+
    text <- stringr::str_replace_all(text,"[\\s]+", " ")
-   text <- str_replace_all(text,"[^[:graph:]]", " ") 
+   text=str_replace_all(text,"[^[:graph:]]", " ") 
    # Split it
    text <- stringi::stri_trans_general(text, "latin-ascii")
    text <- removePunctuation(text)
    text <- unlist(stringr::str_split(text, " "))
    # Get rid of trailing "" if necessary
+   text <- rm_nchar_words(text, "1")
+   text <- rm_nchar_words(text, "2")
    indexes <- which(text == "")
    if(length(indexes) > 0){
       text <- text[-indexes]
