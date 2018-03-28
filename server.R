@@ -229,11 +229,21 @@ removeUsersOutliers <- function(file,percent){
 }
 
 getDFMatrix <- function(text){
+   text <- rm_nchar_words(text, "2")
+   text <- rm_nchar_words(text, "1")
+   text <- stringr::str_replace_all(text,"[\\s]+", " ")
+   text <- str_replace_all(text,"[^[:graph:]]", " ") 
+   # Split it
+   text <- stringi::stri_trans_general(text, "latin-ascii")
+   text <- removePunctuation(text)
+   text <- unlist(stringr::str_split(text, " "))
+   # Get rid of trailing "" if necessary
+   indexes <- which(text == "")
+   if(length(indexes) > 0){
+      text <- text[-indexes]
+   }
    myCorpus <- corpus(text)
    metadoc(myCorpus, "language") <- "portuguese"
-   tokenInfo <- summary(myCorpus)
-   kwic(myCorpus, "gestor")
-   myStemMat <- dfm(myCorpus, remove = stopwords("portuguese"), stem = TRUE, remove_punct = TRUE)
    mydfm <- dfm(myCorpus, remove = c(stopwords("portuguese"),badwords), remove_punct = TRUE, remove_numbers= TRUE)
    return(mydfm)
    #   ap_td <- tidy(mydfm)
@@ -573,25 +583,13 @@ function(input, output) {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       
-      autores <- file %>% 
-         dplyr::select(`Autor ID`, Polaridade) %>%
-         group_by(`Autor ID`, Polaridade) %>% 
-         arrange(`Autor ID`, Polaridade) %>%
+   text <- file %>%
          filter(Polaridade == "Negativo") %>%
-         arrange(`Autor ID`) %>%
-         summarise(total = n()) %>%
-         arrange(total) %>%
-         filter(total > 3) %>%
-         tail(50) %>%
-         dplyr::select(`Autor ID`)
-      
-      text <- file %>%
-         filter(as.character(`Autor ID`) %in% autores$`Autor ID`, Polaridade == "Negativo") %>%
          dplyr::select(Conteúdo) %>%
          toupper()
       
       mydfm <- getDFMatrix(text);
-      words_td <- topfeatures(mydfm, 50)
+      words_td <- topfeatures(mydfm,50)
       ggplot() + 
          geom_bar(stat = "identity", 
                   aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
