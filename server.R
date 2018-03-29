@@ -897,17 +897,7 @@ function(input, output) {
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
      mydfm <- getDFMatrix(text);
      set.seed(100)
-     if(dim(mydfm)[1] <= 500){
-        textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
-                           rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Reds")[4:8])        
-     }
-     else{
-        textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
-                           rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Reds")[4.8])        
-     }
-     
+     textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Reds")[4:8])        
   }
   
   plotWordcloudPositivo = function(){
@@ -916,16 +906,7 @@ function(input, output) {
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "POSITIVO")])
      mydfm <- getDFMatrix(text);
      set.seed(100)
-     if(dim(mydfm)[1] <= 500){
-        textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
-                           rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])        
-     }
-     else{
-        textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
-                           rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])        
-     }
+     textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])       
      
   }
   
@@ -935,17 +916,7 @@ function(input, output) {
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEUTRO")])
      mydfm <- getDFMatrix(text);
      set.seed(100)
-     if(dim(mydfm)[1] <= 500){
-        textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
-                           rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
-     }
-     else{
-        textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
-                           rot.per = .25, 
-                           colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
-     }
-     
+     textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
   }
   
   ###### Outputs
