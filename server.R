@@ -201,7 +201,8 @@ getIndiceDeSentimento <- function(polaridade){
    mp <- length(which(sentimentos==allsentimentos[3]));#Positivo
    mt <- mr + mn + mp;#Total
   
-   indicesentimento <- ifelse(mn == mt, 0, as.numeric((mp-mr)/(mt-mn)))
+   indicesentimento <- ifelse(mn == mt, 0, as.numeric((mp-mr)/(mp+mr)))
+   indicesentimento <- round((indicesentimento),digits=2) 
 
    return(indicesentimento)
 }
@@ -687,7 +688,8 @@ function(input, output) {
 			is = ifelse(((npositivo + nnegativo)==0),0,ifelse((nnegativo + npositivo > 2),(npositivo - nnegativo) / (npositivo + nnegativo), 0)))%>%
             ungroup()%>%
             select(Grupos, Temas, npositivo, nnegativo, is)
-      
+
+      file$is <- round(as.numeric(file$is),digits=2) 
       positivos <- file %>%
 	       group_by(Grupos, Temas) %>% 
 	       summarise(Comentarios = sum(npositivo)) %>%
