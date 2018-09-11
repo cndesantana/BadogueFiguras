@@ -50,6 +50,11 @@ fluidPage(
    downloadButton('wordcloudnegativo',"Download Wordcloud de palavras usadas em posts de polaridade negativa"),
    downloadButton('wordcloudpositivo',"Download Wordcloud de palavras usadas em posts de polaridade positiva"),
    downloadButton('wordcloudneutro',"Download Wordcloud de palavras usadas em posts de polaridade neutra"),
+   tags$hr("Treemap de Palavras",br()),
+   downloadButton('treemap',"Download Treemap de palavras mais usadas"),   
+   downloadButton('treemapnegativo',"Download Treemap de palavras usadas em posts de polaridade negativa"),
+   downloadButton('treemappositivo',"Download Treemap de palavras usadas em posts de polaridade positiva"),
+   downloadButton('treemapneutro',"Download Treemap de palavras usadas em posts de polaridade neutra"),
    tags$hr(),
    
    mainPanel(

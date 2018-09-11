@@ -11,11 +11,37 @@ library(scales)
 library(jpeg)
 library(qdapRegex)
 library(grDevices)
+library(treemap)
+library(stylo)
+library(tidytext)
+library(tokenizers)
+library(tm)
+library(stringr)
+library(dplyr)
+
 
 corpositivo <- "#20B2AA";
 cornegativo <- "#c00000";
 corneutro <- "#FFA500";
 badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem","vçpt","vç","x","vc", "aqui", "você", "tá", "dia", "amanhã", "ba","aqui","governador","Governador","GOVERNADOR","governado","Governado","GOVERNADO","rui","Rui","costa","Costa","RUI","COSTA","Governo","governo","GOVERNO","Bahia","bahia")
+
+getUnigram <- function(text){
+  text <- removeWords(text,badwords)
+  text <- gsub(" *\\b[[:alpha:]]{1,2}\\b *", " ", text) # Remove 1-2 letter words
+  text <- gsub("^ +| +$|( ) +", "\\1", text) # Remove excessive spacing
+  text <- stringi::stri_trans_general(text, "latin-ascii")
+  unigram <- data.frame(words = unlist(tokenize_ngrams(text, n = 1L, n_min = 1L, simplify = TRUE)))
+  
+  unigram$words[which(!is.na(str_extract(unigram$words,"comentario")))] <- NA
+  unigram$words[which(!is.na(str_extract(unigram$words,"timeline")))] <- NA
+  unigram$words[which(!is.na(str_extract(unigram$words,"video")))] <- NA
+  unigram$words[which(!is.na(str_extract(unigram$words,"photos")))] <- NA
+  unigram$words[which(!is.na(str_extract(unigram$words,"conta")))] <- NA
+  unigram$words[which(!is.na(str_extract(unigram$words,"eliminatoria")))] <- NA
+  unigram$words[which(!is.na(str_extract(unigram$words,"eliminatória")))] <- NA
+  
+  return(unigram)
+}
 
 
 cleaningRelNI1Temas <- function(relNI){
@@ -795,6 +821,7 @@ function(input, output) {
       file$Genero[which(is.na(file$Genero))] <- "Não declarado"
       file %>% 
          dplyr::select(Genero, Polaridade) %>%
+         dplyr::filter(toupper(Polaridade) %in% c("POSITIVO","NEGATIVO","NEUTRO")) %>%
          group_by(Genero) %>% 
          count(Genero, Polaridade) %>%
          arrange(n, Genero) %>%
@@ -920,6 +947,60 @@ function(input, output) {
      set.seed(100)
      textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
   }
+
+## Treemap
+   plotTreemap = function(){
+      filepath <- input$file$datapath
+      file <- read_xlsx(filepath)
+      text <- toupper(file$Conteúdo)
+      unigram <- getUnigram(text)
+      unigram <- unigram %>% 
+        filter(!is.na(words)) %>% 
+        select(words) %>% group_by(words) %>% 
+        summarise(palavras = n()) %>% 
+        arrange(palavras) %>% tail(20)
+      treemap(unigram, c("words"), "palavras")
+   }
+      
+   plotTreemapNegativo = function(){
+     filepath <- input$file$datapath
+     file <- read_xlsx(filepath)
+     text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
+     unigram <- getUnigram(text)
+     unigram <- unigram %>% 
+       filter(!is.na(words)) %>% 
+       select(words) %>% group_by(words) %>% 
+       summarise(palavras = n()) %>% 
+       arrange(palavras) %>% tail(20)
+     treemap(unigram, c("words"), "palavras")
+  }
+  
+  plotTreemapPositivo = function(){
+     filepath <- input$file$datapath
+     file <- read_xlsx(filepath)
+     text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "POSITIVO")])
+     unigram <- getUnigram(text)
+     unigram <- unigram %>% 
+       filter(!is.na(words)) %>% 
+       select(words) %>% group_by(words) %>% 
+       summarise(palavras = n()) %>% 
+       arrange(palavras) %>% tail(20)
+     treemap(unigram, c("words"), "palavras")
+  }
+  
+  plotTreemapNeutro = function(){
+     filepath <- input$file$datapath
+     file <- read_xlsx(filepath)
+     text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEUTRO")])
+     unigram <- getUnigram(text)
+     unigram <- unigram %>% 
+       filter(!is.na(words)) %>% 
+       select(words) %>% group_by(words) %>% 
+       summarise(palavras = n()) %>% 
+       arrange(palavras) %>% tail(20)
+     treemap(unigram, c("words"), "palavras")
+  }
+  
   
   ###### Outputs
   
@@ -1186,6 +1267,67 @@ function(input, output) {
         
      }     
   )
+
+
+### Treemap
+
+  output$treemap = downloadHandler(
+     filename = function() {
+        paste("treemap.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotTreemap(), device = device)
+        
+     }     
+  )
+  
+  output$treemapnegativo = downloadHandler(
+     filename = function() {
+        paste("treemapnegativo.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotTreemapNegativo(), device = device)
+        
+     }     
+  )
+  
+  output$treemappositivo = downloadHandler(
+     filename = function() {
+        paste("treemappositivo.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotTreemapPositivo(), device = device)
+        
+     }     
+  )
+  
+  output$treemapneutro = downloadHandler(
+     filename = function() {
+        paste("treemapneutro.png", sep = "")
+     },
+     content = function(file) {
+        device <- function(..., width, height) {
+           grDevices::png(..., width = width, height = height,
+                          res = 300, units = "in")
+        }
+        ggsave(file, plot = plotTreemapNeutro(), device = device)
+        
+     }     
+  )
+
+####
   
   output$wordcloudnegativo = downloadHandler(
      filename = function() {
