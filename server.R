@@ -958,8 +958,12 @@ function(input, output) {
         filter(!is.na(words)) %>% 
         select(words) %>% group_by(words) %>% 
         summarise(palavras = n()) %>% 
-        arrange(palavras) %>% tail(20)
-      treemap(unigram, c("words"), "palavras")
+        arrange(palavras) %>% tail(50)
+      treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
+              fontface.labels="italic", 
+              vSize="palavras", vColor="palavras", 
+              type="value", 
+              palette="Dark2", range=c(1,100), n = 9)
    }
       
    plotTreemapNegativo = function(){
@@ -971,8 +975,12 @@ function(input, output) {
        filter(!is.na(words)) %>% 
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
-       arrange(palavras) %>% tail(20)
-     treemap(unigram, c("words"), "palavras")
+       arrange(palavras) %>% tail(50)
+     treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
+             fontface.labels="italic", 
+             vSize="palavras", vColor="palavras", 
+             type="value", 
+             palette="Dark2", range=c(1,100), n = 9)
   }
   
   plotTreemapPositivo = function(){
@@ -984,8 +992,12 @@ function(input, output) {
        filter(!is.na(words)) %>% 
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
-       arrange(palavras) %>% tail(20)
-     treemap(unigram, c("words"), "palavras")
+       arrange(palavras) %>% tail(50)
+     treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
+             fontface.labels="italic", 
+             vSize="palavras", vColor="palavras", 
+             type="value", 
+             palette="Dark2", range=c(1,100), n = 9)
   }
   
   plotTreemapNeutro = function(){
@@ -997,8 +1009,12 @@ function(input, output) {
        filter(!is.na(words)) %>% 
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
-       arrange(palavras) %>% tail(20)
-     treemap(unigram, c("words"), "palavras")
+       arrange(palavras) %>% tail(50)
+     treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
+             fontface.labels="italic", 
+             vSize="palavras", vColor="palavras", 
+             type="value", 
+             palette="Dark2", range=c(1,100), n = 9)
   }
   
   
