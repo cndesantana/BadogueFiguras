@@ -24,6 +24,7 @@ corpositivo <- "#20B2AA";
 cornegativo <- "#c00000";
 corneutro <- "#FFA500";
 badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem","vçpt","vç","x","vc", "aqui", "você", "tá", "dia", "amanhã", "ba","aqui","governador","Governador","GOVERNADOR","governado","Governado","GOVERNADO","rui","Rui","costa","Costa","RUI","COSTA","Governo","governo","GOVERNO","Bahia","bahia")
+palette <- c("#ff9ff3","#feca57","#ff6b6b","#48dbfb","#1dd1a1")
 
 getUnigram <- function(text){
   text <- removeWords(text,badwords)
@@ -959,16 +960,27 @@ function(input, output) {
         select(words) %>% group_by(words) %>% 
         summarise(palavras = n()) %>% 
         arrange(palavras) %>% tail(50)
-      df2 <- mutate(unigram,
-                    color = palette)
-      ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
-        geom_treemap() +
+      numerodereferencia <- max(unigram$palavras) %/% 5
+      unigram <- unigram %>% 
+        mutate(classe = case_when(palavras < numerodereferencia ~ "de 1 a 5", 
+                                  palavras < 2*numerodereferencia ~ "de 5 a 10", 
+                                  palavras < 3*numerodereferencia ~ "de 10 a 50", 
+                                  palavras < 4*numerodereferencia ~ "de 50 a 100", 
+                                  palavras >= 4*numerodereferencia ~ "mais que 100")) %>%
+        mutate(classe = factor(classe, levels = c("de 1 a 5", "de 5 a 10", "de 10 a 50", "de 50 a 100", "mais que 100")))
+      ggplot(unigram, aes(area = palavras, 
+                          fill = palette[as.numeric(unigram$classe)], 
+                          label = words, 
+                          subgroup=palavras)) +
+        geom_treemap(fill = "black") +
+        geom_treemap(aes(alpha=palavras)) +
         geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
                           grow = F, reflow=TRUE) + 
         geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
                                    col="white", cex=10) +
         ggtitle("Palavras mais comentadas")+
-        scale_fill_identity()
+        scale_fill_identity() +
+        scale_alpha_continuous(range = c(0.4, 1),guide = 'none')
    }
       
    plotTreemapNegativo = function(){
@@ -981,16 +993,27 @@ function(input, output) {
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
        arrange(palavras) %>% tail(50)
-     df2 <- mutate(unigram,
-                   color = palette)
-     ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
-       geom_treemap() +
+     numerodereferencia <- max(unigram$palavras) %/% 5
+     unigram <- unigram %>% 
+       mutate(classe = case_when(palavras < numerodereferencia ~ "de 1 a 5", 
+                                 palavras < 2*numerodereferencia ~ "de 5 a 10", 
+                                 palavras < 3*numerodereferencia ~ "de 10 a 50", 
+                                 palavras < 4*numerodereferencia ~ "de 50 a 100", 
+                                 palavras >= 4*numerodereferencia ~ "mais que 100")) %>%
+       mutate(classe = factor(classe, levels = c("de 1 a 5", "de 5 a 10", "de 10 a 50", "de 50 a 100", "mais que 100")))
+     ggplot(unigram, aes(area = palavras, 
+                         fill = palette[as.numeric(unigram$classe)], 
+                         label = words, 
+                         subgroup=palavras)) +
+       geom_treemap(fill = "black") +
+       geom_treemap(aes(alpha=palavras)) +
        geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
                          grow = F, reflow=TRUE) + 
        geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
                                   col="white", cex=10) +
        ggtitle("Palavras mais comentadas")+
-       scale_fill_identity()
+       scale_fill_identity() +
+       scale_alpha_continuous(range = c(0.4, 1),guide = 'none')
   }
   
   plotTreemapPositivo = function(){
@@ -1003,16 +1026,27 @@ function(input, output) {
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
        arrange(palavras) %>% tail(50)
-     df2 <- mutate(unigram,
-                   color = palette)
-     ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
-       geom_treemap() +
+     numerodereferencia <- max(unigram$palavras) %/% 5
+     unigram <- unigram %>% 
+       mutate(classe = case_when(palavras < numerodereferencia ~ "de 1 a 5", 
+                                 palavras < 2*numerodereferencia ~ "de 5 a 10", 
+                                 palavras < 3*numerodereferencia ~ "de 10 a 50", 
+                                 palavras < 4*numerodereferencia ~ "de 50 a 100", 
+                                 palavras >= 4*numerodereferencia ~ "mais que 100")) %>%
+       mutate(classe = factor(classe, levels = c("de 1 a 5", "de 5 a 10", "de 10 a 50", "de 50 a 100", "mais que 100")))
+     ggplot(unigram, aes(area = palavras, 
+                         fill = palette[as.numeric(unigram$classe)], 
+                         label = words, 
+                         subgroup=palavras)) +
+       geom_treemap(fill = "black") +
+       geom_treemap(aes(alpha=palavras)) +
        geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
                          grow = F, reflow=TRUE) + 
        geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
                                   col="white", cex=10) +
        ggtitle("Palavras mais comentadas")+
-       scale_fill_identity()
+       scale_fill_identity() +
+       scale_alpha_continuous(range = c(0.4, 1),guide = 'none')
   }
   
   plotTreemapNeutro = function(){
@@ -1025,17 +1059,28 @@ function(input, output) {
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
        arrange(palavras) %>% tail(50)
-     df2 <- mutate(unigram,
-                   color = palette)
-     ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
-       geom_treemap() +
+     numerodereferencia <- max(unigram$palavras) %/% 5
+     unigram <- unigram %>% 
+       mutate(classe = case_when(palavras < numerodereferencia ~ "de 1 a 5", 
+                                 palavras < 2*numerodereferencia ~ "de 5 a 10", 
+                                 palavras < 3*numerodereferencia ~ "de 10 a 50", 
+                                 palavras < 4*numerodereferencia ~ "de 50 a 100", 
+                                 palavras >= 4*numerodereferencia ~ "mais que 100")) %>%
+       mutate(classe = factor(classe, levels = c("de 1 a 5", "de 5 a 10", "de 10 a 50", "de 50 a 100", "mais que 100")))
+     ggplot(unigram, aes(area = palavras, 
+                         fill = palette[as.numeric(unigram$classe)], 
+                         label = words, 
+                         subgroup=palavras)) +
+       geom_treemap(fill = "black") +
+       geom_treemap(aes(alpha=palavras)) +
        geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
                          grow = F, reflow=TRUE) + 
        geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
                                   col="white", cex=10) +
        ggtitle("Palavras mais comentadas")+
-       scale_fill_identity()
-  }
+       scale_fill_identity() +
+       scale_alpha_continuous(range = c(0.4, 1),guide = 'none')
+     }
   
   
   ###### Outputs
