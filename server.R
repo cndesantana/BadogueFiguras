@@ -959,11 +959,16 @@ function(input, output) {
         select(words) %>% group_by(words) %>% 
         summarise(palavras = n()) %>% 
         arrange(palavras) %>% tail(50)
-      treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
-              fontface.labels="italic", 
-              vSize="palavras", vColor="palavras", 
-              type="value", 
-              palette="Dark2", range=c(1,100), n = 9)
+      df2 <- mutate(unigram,
+                    color = palette)
+      ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
+        geom_treemap() +
+        geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
+                          grow = F, reflow=TRUE) + 
+        geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
+                                   col="white", cex=10) +
+        ggtitle("Palavras mais comentadas")+
+        scale_fill_identity()
    }
       
    plotTreemapNegativo = function(){
@@ -976,11 +981,16 @@ function(input, output) {
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
        arrange(palavras) %>% tail(50)
-     treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
-             fontface.labels="italic", 
-             vSize="palavras", vColor="palavras", 
-             type="value", 
-             palette="Dark2", range=c(1,100), n = 9)
+     df2 <- mutate(unigram,
+                   color = palette)
+     ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
+       geom_treemap() +
+       geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
+                         grow = F, reflow=TRUE) + 
+       geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
+                                  col="white", cex=10) +
+       ggtitle("Palavras mais comentadas")+
+       scale_fill_identity()
   }
   
   plotTreemapPositivo = function(){
@@ -993,11 +1003,16 @@ function(input, output) {
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
        arrange(palavras) %>% tail(50)
-     treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
-             fontface.labels="italic", 
-             vSize="palavras", vColor="palavras", 
-             type="value", 
-             palette="Dark2", range=c(1,100), n = 9)
+     df2 <- mutate(unigram,
+                   color = palette)
+     ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
+       geom_treemap() +
+       geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
+                         grow = F, reflow=TRUE) + 
+       geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
+                                  col="white", cex=10) +
+       ggtitle("Palavras mais comentadas")+
+       scale_fill_identity()
   }
   
   plotTreemapNeutro = function(){
@@ -1010,11 +1025,16 @@ function(input, output) {
        select(words) %>% group_by(words) %>% 
        summarise(palavras = n()) %>% 
        arrange(palavras) %>% tail(50)
-     treemap(unigram, c("words"), "palavras",fontcolor.labels="white",
-             fontface.labels="italic", 
-             vSize="palavras", vColor="palavras", 
-             type="value", 
-             palette="Dark2", range=c(1,100), n = 9)
+     df2 <- mutate(unigram,
+                   color = palette)
+     ggplot(df2, aes(area = palavras, fill = color, label = words, subgroup=palavras)) +
+       geom_treemap() +
+       geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
+                         grow = F, reflow=TRUE) + 
+       geom_treemap_subgroup_text(place = "bottomright", grow = F, alpha = 1, 
+                                  col="white", cex=10) +
+       ggtitle("Palavras mais comentadas")+
+       scale_fill_identity()
   }
   
   
@@ -1292,11 +1312,7 @@ function(input, output) {
         paste("treemap.png", sep = "")
      },
      content = function(file) {
-        device <- function(..., width, height) {
-           grDevices::png(..., width = width, height = height,
-                          res = 300, units = "in")
-        }
-        ggsave(file, plot = plotTreemap(), device = device)
+        ggsave(file, plot = plotTreemap(), width=10.67, height=6, dpi=300, device = "png", units="in")
         
      }     
   )
@@ -1306,13 +1322,9 @@ function(input, output) {
         paste("treemapnegativo.png", sep = "")
      },
      content = function(file) {
-        device <- function(..., width, height) {
-           grDevices::png(..., width = width, height = height,
-                          res = 300, units = "in")
-        }
-        ggsave(file, plot = plotTreemapNegativo(), device = device)
-        
-     }     
+       ggsave(file, plot = plotTreemapNegativo(), width=10.67, height=6, dpi=300, device = "png", units="in")
+       
+     }  
   )
   
   output$treemappositivo = downloadHandler(
@@ -1320,13 +1332,9 @@ function(input, output) {
         paste("treemappositivo.png", sep = "")
      },
      content = function(file) {
-        device <- function(..., width, height) {
-           grDevices::png(..., width = width, height = height,
-                          res = 300, units = "in")
-        }
-        ggsave(file, plot = plotTreemapPositivo(), device = device)
-        
-     }     
+       ggsave(file, plot = plotTreemapPositivo(), width=10.67, height=6, dpi=300, device = "png", units="in")
+       
+     }      
   )
   
   output$treemapneutro = downloadHandler(
@@ -1334,13 +1342,9 @@ function(input, output) {
         paste("treemapneutro.png", sep = "")
      },
      content = function(file) {
-        device <- function(..., width, height) {
-           grDevices::png(..., width = width, height = height,
-                          res = 300, units = "in")
-        }
-        ggsave(file, plot = plotTreemapNeutro(), device = device)
-        
-     }     
+       ggsave(file, plot = plotTreemapNeutro(), width=10.67, height=6, dpi=300, device = "png", units="in")
+       
+     }      
   )
 
 ####
