@@ -23,11 +23,11 @@ library(dplyr)
 corpositivo <- "#20B2AA";
 cornegativo <- "#c00000";
 corneutro <- "#FFA500";
-badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem","vçpt","vç","x","vc", "aqui", "você", "tá", "dia", "amanhã", "ba","aqui","governador","Governador","GOVERNADOR","governado","Governado","GOVERNADO","rui","Rui","costa","Costa","RUI","COSTA","Governo","governo","GOVERNO","Bahia","bahia")
+badwords <- c("boa","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","mais","com","está","por","uma","tem","vai","pelo","meu","sobre","não","já","nos","sem","quando","xed","xbd","ser","xbe","xa0","x8f","xb9","xb2","xb0","xb1","xb8","x8c","xa3","xbc","xaa","www.youtube.com","scontent.xx.fbcdn.net","https","oh","oe","pra","v","como","para","de","do","da","das","dos","isso","esse","nisso","nesse","aquele","nesses","aqueles","aquela","aquelas","que","q","é","sr","senhor","comentário","perfil","r","que","nao","sim","comentário","feito","comentario","imagem","comentario feito no perfil de secretaria","secretaria","foi","photos","http","bit.ly","sou","mais","bahia","vídeo","timeline","video","er","enem","vçpt","vç","x","vc", "aqui", "você", "tá", "dia", "amanhã", "ba","aqui","governador","Governador","GOVERNADOR","governado","Governado","GOVERNADO","rui","Rui","costa","Costa","RUI","COSTA","Governo","governo","GOVERNO","Bahia","bahia","com","que","nao","meu","mais","por","uma","pra","para","um","mais","mas")
 palette <- c("#ff9ff3","#feca57","#ff6b6b","#48dbfb","#1dd1a1")
 
 getUnigram <- function(text){
-  text <- removeWords(text,badwords)
+  text <- removeWords(text,c(stopwords("portuguese"),badwords))
   text <- gsub(" *\\b[[:alpha:]]{1,2}\\b *", " ", text) # Remove 1-2 letter words
   text <- gsub("^ +| +$|( ) +", "\\1", text) # Remove excessive spacing
   text <- stringi::stri_trans_general(text, "latin-ascii")
@@ -842,15 +842,20 @@ function(input, output) {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       text <- toupper(file$Conteúdo)
-      mydfm <- getDFMatrix(text);
-      words_td <- topfeatures(mydfm, 20)
+      unigram <- getUnigram(text)
+      unigram <- unigram %>% 
+        filter(!is.na(words)) %>% 
+        group_by(words) %>% 
+        summarise(nwords = n()) %>% 
+        arrange(nwords) %>% tail(30)
+    unigram %>% 
       ggplot() + 
          geom_bar(stat = "identity", 
-                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
+                  aes(x = reorder(words,nwords), y = nwords),
                   fill = "magenta") + 
          ylab("Número de ocorrências") +
          xlab("") +
-         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
+         geom_text( aes (x = reorder(words,nwords), y = nwords, label = nwords ) , vjust = 0, hjust = 0, size = 2 ) + 
          coord_flip()
    }
    
@@ -858,48 +863,63 @@ function(input, output) {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
-      mydfm <- getDFMatrix(text);
-      words_td <- topfeatures(mydfm, 20)
-      ggplot() + 
-         geom_bar(stat = "identity", 
-                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = cornegativo) + 
-         ylab("Número de ocorrências") +
-         xlab("") +
-         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
-         coord_flip()
+      unigram <- getUnigram(text)
+      unigram <- unigram %>% 
+        filter(!is.na(words)) %>% 
+        group_by(words) %>% 
+        summarise(nwords = n()) %>% 
+        arrange(nwords) %>% tail(30)
+      unigram %>% 
+        ggplot() + 
+        geom_bar(stat = "identity", 
+                 aes(x = reorder(words,nwords), y = nwords),
+                 fill = cornegativo) + 
+        ylab("Número de ocorrências") +
+        xlab("") +
+        geom_text( aes (x = reorder(words,nwords), y = nwords, label = nwords ) , vjust = 0, hjust = 0, size = 2 ) + 
+        coord_flip()
    }   
    
    plotPalavrasPositivas = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "POSITIVO")])
-      mydfm <- getDFMatrix(text);
-      words_td <- topfeatures(mydfm, 20)
-      ggplot() + 
-         geom_bar(stat = "identity", 
-                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = corpositivo) + 
-         ylab("Número de ocorrências") +
-         xlab("") +
-         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
-         coord_flip()
+      unigram <- getUnigram(text)
+      unigram <- unigram %>% 
+        filter(!is.na(words)) %>% 
+        group_by(words) %>% 
+        summarise(nwords = n()) %>% 
+        arrange(nwords) %>% tail(30)
+      unigram %>% 
+        ggplot() + 
+        geom_bar(stat = "identity", 
+                 aes(x = reorder(words,nwords), y = nwords),
+                 fill = corpositivo) + 
+        ylab("Número de ocorrências") +
+        xlab("") +
+        geom_text( aes (x = reorder(words,nwords), y = nwords, label = nwords ) , vjust = 0, hjust = 0, size = 2 ) + 
+        coord_flip()
    }
    
    plotPalavrasNeutras = function() {
       filepath <- input$file$datapath
       file <- read_xlsx(filepath)
       text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEUTRO")])
-      mydfm <- getDFMatrix(text);
-      words_td <- topfeatures(mydfm, 20)
-      ggplot() + 
-         geom_bar(stat = "identity", 
-                  aes(x = reorder(names(words_td),as.numeric(words_td)), y = as.numeric(words_td)),
-                  fill = corneutro) + 
-         ylab("Número de ocorrências") +
-         xlab("") +
-         geom_text( aes (x = reorder(names(words_td),as.numeric(words_td)), y = words_td, label = words_td ) , vjust = 0, hjust = 0, size = 2 ) + 
-         coord_flip()
+      unigram <- getUnigram(text)
+      unigram <- unigram %>% 
+        filter(!is.na(words)) %>% 
+        group_by(words) %>% 
+        summarise(nwords = n()) %>% 
+        arrange(nwords) %>% tail(30)
+      unigram %>% 
+        ggplot() + 
+        geom_bar(stat = "identity", 
+                 aes(x = reorder(words,nwords), y = nwords),
+                 fill = corneutro) + 
+        ylab("Número de ocorrências") +
+        xlab("") +
+        geom_text( aes (x = reorder(words,nwords), y = nwords, label = nwords ) , vjust = 0, hjust = 0, size = 2 ) + 
+        coord_flip()
    }
 
    plotWordcloud = function(){
@@ -908,13 +928,13 @@ function(input, output) {
       text <- toupper(file$Conteúdo)
       mydfm <- getDFMatrix(text);
       set.seed(100)
-      if(dim(mydfm)[1] <= 500){
+      if(dim(mydfm)[1] <= 1000){
          textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,
                             rot.per = .25, 
                             colors = RColorBrewer::brewer.pal(9,"Dark2")[4:8])        
       }
       else{
-         textplot_wordcloud(mydfm[1:500], min.freq = 3, random.order = FALSE,
+         textplot_wordcloud(mydfm[1:1000], min.freq = 3, random.order = FALSE,
                             rot.per = .25, 
                             colors = RColorBrewer::brewer.pal(9,"Dark2")[4:8])        
       }
@@ -927,7 +947,11 @@ function(input, output) {
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEGATIVO")])
      mydfm <- getDFMatrix(text);
      set.seed(100)
-     textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Reds")[4:8])        
+     if(dim(mydfm)[1] <= 1000){
+       textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Reds")[4:8])        
+     }else{
+       textplot_wordcloud(mydfm[1:1000], min.freq = 3, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Reds")[4:8])        
+     }
   }
   
   plotWordcloudPositivo = function(){
@@ -936,7 +960,11 @@ function(input, output) {
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "POSITIVO")])
      mydfm <- getDFMatrix(text);
      set.seed(100)
-     textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])       
+     if(dim(mydfm)[1] <= 1000){
+      textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])       
+     }else{
+       textplot_wordcloud(mydfm[1:1000], min.freq = 3, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Blues")[4:8])        
+     }
      
   }
   
@@ -946,7 +974,11 @@ function(input, output) {
      text <- toupper(file$Conteúdo[which(toupper(file$Polaridade) == "NEUTRO")])
      mydfm <- getDFMatrix(text);
      set.seed(100)
-     textplot_wordcloud(mydfm, min.freq = 5, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
+     if(dim(mydfm)[1] <= 1000){
+       textplot_wordcloud(mydfm, min.freq = 3, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
+     }else{
+       textplot_wordcloud(mydfm[1:1000], min.freq = 3, random.order = FALSE,rot.per = .25,colors = RColorBrewer::brewer.pal(9,"Greens")[4:8])        
+     }
   }
 
 ## Treemap
